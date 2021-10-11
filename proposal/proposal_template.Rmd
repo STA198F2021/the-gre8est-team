@@ -1,8 +1,8 @@
 ---
 title: "Project Proposal"
 subtitle: "due October 11, 2021 by 11:59 PM "
-author: "Your names and team name here"
-date: ""
+author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
+date: "10/11/2021"
 output: pdf_document
 ---
 
@@ -10,20 +10,37 @@ output: pdf_document
 
 ```{r load-packages, message = FALSE, warning = FALSE}
 library(tidyverse) 
+
 ``` 
 
 # Load Data
-```{r load-data, message = F}
+```{r load-data}
+library(readr)
+h_spend <- read_csv("../data/Health-Spending.CSV")
+wb_tot_lifeexp <- read_csv("../data/World Bank Life Exp.csv")
+wb_f_lifeexp <- read_csv("../data/World Bank Female Life Exp.csv")
+wb_m_lifeexp <- read_csv("../data/World Bank Male Life Exp.csv")
 ```
 
 # Introduction and Data, including Research Questions
 
-(The introduction should introduce your general research question and your data (where it came from, how it was collected, what are the cases, what are the variables, etc.). Your research questions should be clearly specified. The motivation for your research question should be clear, with citations to relevant literature as appropriate.)
+Our general research question is to investigate the relationship between a country’s healthcare spending and the life expectancies of their population. We are using health spending data from the Global Health Data Exchange and life expectancy data from the UN statistical database [1] and the World Bank Open Data [2-4]. For these two data sets, we will be analyzing data from all countries that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, location category, year, and total health spending (2020 USD). This spending estimate is in constant thousands of 2020 United States Dollars. The life expectancy data were collected by the United Nations Statistics Division through the Demographic Yearbook vital statistics questionnaire. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), and female life expectancy at birth (years). Some existing literature has already explored the association between healthcare spending and health outcomes [5]. However, we would like to explore this relationship ourselves as we are all interested in seeing whether the common-sense notion that increased spending on healthcare should increase life expectancies holds true across different countries. And if not, delving deeper into those variations.
+
+References \
+[1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021. \
+[2] World Bank. "Life expectancy at birth, total (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.IN
+[3] World Bank. "Life expectancy at birth, male (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.MA.IN
+[4] World Bank. "Life expectancy at birth, female (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.FE.IN
+#[2] United Nations, Department of Economic and Social Affairs, Population Division (2019). World Population Prospects 2019, Online Edition. Rev. 1. \
+[5] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
 
 # Glimpse
-
-(Please use `glimpse` for your data, uploaded into the data folder, here.)
-
+```{r glimpse_data, message = FALSE, echo = FALSE}
+glimpse(h_spend)
+glimpse(wb_lifeexp)
+glimpse(wb_m_lifeexp)
+glimpse(wb_f_lifeexp)
+```
 # Data Analysis Plan
 
 (Specify the outcome (response, Y) and predictor (explanatory, X) variables you will use to answer your question, as well as the comparison groups you will use, if applicable. You may include very preliminary exploratory data analysis, including some summary statistics and visualizations, along with some explanation on how they help you learn more about your data. Note the statistical method(s) that you believe will be useful in answering your question(s). 
