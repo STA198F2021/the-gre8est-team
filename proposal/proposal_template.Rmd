@@ -10,11 +10,10 @@ output: pdf_document
 
 ```{r load-packages, message = FALSE, warning = FALSE}
 library(tidyverse) 
-
 ``` 
 
 # Load Data
-```{r load-data}
+```{r load-data, message = FALSE, warning = FALSE}
 library(readr)
 h_spend <- read_csv("../data/Health-Spending.CSV")
 wb_tot_lifeexp <- read_csv("../data/World Bank Life Exp.csv")
@@ -28,16 +27,15 @@ Our general research question is to investigate the relationship between a count
 
 References \
 [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021. \
-[2] World Bank. "Life expectancy at birth, total (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.IN
-[3] World Bank. "Life expectancy at birth, male (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.MA.IN
-[4] World Bank. "Life expectancy at birth, female (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.FE.IN
-#[2] United Nations, Department of Economic and Social Affairs, Population Division (2019). World Population Prospects 2019, Online Edition. Rev. 1. \
+[2] World Bank. "Life expectancy at birth, total (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.IN \
+[3] World Bank. "Life expectancy at birth, male (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.MA.IN \
+[4] World Bank. "Life expectancy at birth, female (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.FE.IN \
 [5] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
 
 # Glimpse
 ```{r glimpse_data, message = FALSE, echo = FALSE}
 glimpse(h_spend)
-glimpse(wb_lifeexp)
+glimpse(wb_tot_lifeexp)
 glimpse(wb_m_lifeexp)
 glimpse(wb_f_lifeexp)
 ```
