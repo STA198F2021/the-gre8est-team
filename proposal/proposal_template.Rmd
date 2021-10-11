@@ -1,8 +1,8 @@
 ---
 title: "Project Proposal"
 subtitle: "due October 11, 2021 by 11:59 PM "
-author: "Your names and team name here"
-date: ""
+author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
+date: "10/11/2021"
 output: pdf_document
 ---
 
@@ -18,7 +18,12 @@ library(tidyverse)
 
 # Introduction and Data, including Research Questions
 
-(The introduction should introduce your general research question and your data (where it came from, how it was collected, what are the cases, what are the variables, etc.). Your research questions should be clearly specified. The motivation for your research question should be clear, with citations to relevant literature as appropriate.)
+Our general research question is to investigate the relationship between a country’s healthcare spending and the life expectancies of their population. We are using health spending data from the Global Health Data Exchange and life expectancy data from UN statistical databases [1-2]. For these two data sets, we will be analyzing data from all countries that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, location category, year, and total health spending (2020 USD). This spending estimate is in constant thousands of 2020 United States Dollars. The life expectancy data were collected by the United Nations Statistics Division through the Demographic Yearbook vital statistics questionnaire. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), and female life expectancy at birth (years). Some existing literature has already explored the association between healthcare spending and health outcomes [3]. However, we would like to explore this relationship ourselves as we are all interested in seeing whether the common-sense notion that increased spending on healthcare should increase life expectancies holds true across different countries. And if not, delving deeper into those variations.
+
+References \
+[1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021. \
+[2] United Nations Statistics Division \
+[3] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
 
 # Glimpse
 
