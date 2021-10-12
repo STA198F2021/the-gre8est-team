@@ -38,26 +38,18 @@
 |oop_per_gdp_mean|Mean out-of-pocket health spending per GDP|
 |dah_per_gdp_mean|Mean Development Assistance for Health per GDP|
 
-## World Bank Total Life Expectancy
+## World Bank Total Life Expectancy 1990-2020
 
 |variable         |description |
 |:----------------|:-----------|
 |Country Name|Country name|
 |Country Code|ISO3 country codes|
 |1990|Year of estimated life expectancy|
-|etc.|Year of estimated life expectancy|
+|1991|Year of estimated life expectancy|
+|...|Year of estimated life expectancy|
+|2020|Year of estimated life expectancy|
 
-## World Bank Male Life Expectancy
-
-|variable         |description |
-|:----------------|:-----------|
-|Country Name|Country name|
-|Country Code|ISO3 country codes|
-|Indicator Name|Value being measured|
-|1960|Year of estimated life expectancy|
-|etc.|Year of estimated life expectancy|
-
-## World Bank Female Life Expectancy
+## World Bank Male Life Expectancy 1960-2020
 
 |variable         |description |
 |:----------------|:-----------|
@@ -65,5 +57,19 @@
 |Country Code|ISO3 country codes|
 |Indicator Name|Value being measured|
 |1960|Year of estimated life expectancy|
-|etc.|Year of estimated life expectancy|
+|1961|Year of estimated life expectancy|
+|...|Year of estimated life expectancy|
+|2020|Year of estimated life expectancy|
+
+## World Bank Female Life Expectancy 1960-2020
+
+|variable         |description |
+|:----------------|:-----------|
+|Country Name|Country name|
+|Country Code|ISO3 country codes|
+|Indicator Name|Value being measured|
+|1960|Year of estimated life expectancy|
+|1961|Year of estimated life expectancy|
+|...|Year of estimated life expectancy|
+|2020|Year of estimated life expectancy|
 
