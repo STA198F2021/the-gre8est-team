@@ -33,16 +33,18 @@ References \
 [5] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
 
 # Glimpse
+*Note: If glimpse() were to be used, our document would be over the length criteria. Please visit our github repo to see full datasets. 
+
 ```{r glimpse_data, message = FALSE, echo = FALSE}
-glimpse(h_spend)
-glimpse(wb_tot_lifeexp)
-glimpse(wb_m_lifeexp)
-glimpse(wb_f_lifeexp)
+head(h_spend)
+head(wb_tot_lifeexp)
+#glimpse(wb_m_lifeexp)
+#glimpse(wb_f_lifeexp)
 ```
 # Data Analysis Plan
 The predictor would be health spending within a particular country. The outcome would be life expectancy (whether total or per age group). We may also explore differences in life expectancies between genders as a function of health spending within the country or the association between the geography of a country and its global health spending. We will be comparing spending across countries and life expectancies within those countries so no control group would be necessary. 
 
-```{r prelimdataviz, warning=FALSE}
+```{r prelimdataviz, warning=FALSE, fig.height = 2, fig.width = 2}
   
 pivot_longer(
   wb_tot_lifeexp, 
