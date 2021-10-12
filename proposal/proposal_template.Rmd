@@ -40,6 +40,25 @@ glimpse(wb_m_lifeexp)
 glimpse(wb_f_lifeexp)
 ```
 # Data Analysis Plan
+The predictor would be health spending within a particular country. The outcome would be life expectancy (whether total or per age group). We may also explore differences in life expectancies between genders as a function of health spending within the country or the association between the geography of a country and its global health spending. We will be comparing spending across countries and life expectancies within those countries so no control group would be necessary. 
 
-(Specify the outcome (response, Y) and predictor (explanatory, X) variables you will use to answer your question, as well as the comparison groups you will use, if applicable. You may include very preliminary exploratory data analysis, including some summary statistics and visualizations, along with some explanation on how they help you learn more about your data. Note the statistical method(s) that you believe will be useful in answering your question(s). 
-What results from these specific statistical methods are needed to support your hypothesized answer?)
+```{r prelimdataviz, warning=FALSE}
+  
+pivot_longer(
+  wb_tot_lifeexp, 
+  cols = "1995" : "2020",
+  names_to = "Year" ,
+  values_to = "Life_Exp"
+  ) %>%
+  head() %>%
+  ggplot(aes(x = Year, y = Life_Exp)) +
+  geom_point()
+
+h_spend %>%
+  head() %>%
+   ggplot(aes(x = year, y = the_total_mean)) +
+  geom_point()
+```
+Above we output two very simple and preliminary scatter plots for the trend in life expectancy over 5 years and health spending (labeled the_total_mean) over the same 5 years in Afghanistan. As we can see, there is a very clear and opposite trend in the data (which is contradictory to what we expect). Therefore, this is a good indication that patterns are present across the two datasets and that furthr exploration is necessary. Over the course of the project, we will combine the two datasets and create similar scatter plots with mean spending on the x-axis and life expectancy on the y-axis with possible facets or color-coordination by gender. 
+
+A regression analysis with focus on R and R^2 will be useful to analyze the relationship between health spending and life expectancies. We can also categorize the health spending into low and high categories and do the same for life expectancies. Then, we can run a Chi-Squared test for Independence to find if the two variables (now categorical) are independent or not. Our hypothesis is that higher health spending is associated with higher life expectancy. To support this, we would expect to see a positive and strong correlation (with a high positive R value and high R^2 value). We would also expect to reject the null hypothesis for independence of health spending and life expectancy through a low p-value in the Chi-Squared test. 
