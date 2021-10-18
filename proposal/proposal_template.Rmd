@@ -2,7 +2,7 @@
 title: "Project Proposal"
 subtitle: "due October 11, 2021 by 11:59 PM "
 author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
-date: "10/11/2021"
+date: "10/18/2021"
 output: pdf_document
 ---
 
