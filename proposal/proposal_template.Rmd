@@ -19,18 +19,21 @@ h_spend <- read_csv("../data/Health-Spending.CSV")
 wb_tot_lifeexp <- read_csv("../data/World Bank Life Exp.csv")
 wb_f_lifeexp <- read_csv("../data/World Bank Female Life Exp.csv")
 wb_m_lifeexp <- read_csv("../data/World Bank Male Life Exp.csv")
+econ <- read_csv("../data/EconMetrics.csv")
 ```
 
 # Introduction and Data, including Research Questions
 
-Our general research question is to investigate the relationship between a country’s healthcare spending and the life expectancies of their population. We are using health spending data from the Global Health Data Exchange [1] and life expectancy data from the World Bank Open Data [2-4]. In addition to this, we are using world econometric data from the World Bank [6]. For these 5 data sets, we will be analyzing data from all countries that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, location category, year, and total health spending (2020 USD). This spending estimate is in constant thousands of 2020 United States Dollars. The life expectancy data were collected by the United Nations Statistics Division through the Demographic Yearbook vital statistics questionnaire. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), and female life expectancy at birth (years). Some existing literature has already explored the association between healthcare spending and health outcomes [5]. However, we would like to explore this relationship ourselves as we are all interested in seeing whether the common-sense notion that increased spending on healthcare should increase life expectancies holds true across different countries. And if not, delving deeper into those variations.
+Our general research question is to investigate the relationship between a country’s healthcare spending and the life expectancy of their population. We are using health spending data from the Global Health Data Exchange [1], life expectancy data from the World Bank Open Data [2-4], and world economic data from the World Bank [6]. For these data sets, we will be analyzing data from all countries that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, location category, year, and total health spending (2020 USD). The life expectancy data were collected by the United Nations Statistics Division through the Demographic Yearbook vital statistics questionnaire. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), and female life expectancy at birth (years). The world economic data were collected by the World Bank through various sources. The variables that we are most concerned with are total fertility rate (births per woman), GDP (current US dollars), GDP growth (annual %), income share held by lowest 20%, inflation/GDP deflator (annual %), mortality rate under 5 (per 1,000 live births), population total, population growth (annual %), and poverty headcount ratio at national poverty lines (% of population) [6]. Some existing literature has already explored the association between healthcare spending and health outcomes [5]. However, we would like to explore this relationship ourselves as we are all interested in seeing whether increased spending on healthcare should increase current year life expectancy holds true across different countries. And if not, delving deeper into those variations.
 
 References \
 [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021. \
 [2] World Bank. "Life expectancy at birth, total (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.IN \
 [3] World Bank. "Life expectancy at birth, male (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.MA.IN \
 [4] World Bank. "Life expectancy at birth, female (years)" World Development Indicators, The World Bank Group, 2021, https://data.worldbank.org/indicator/SP.DYN.LE00.FE.IN \
-[5] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
+[5] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460. \
+[6] World Bank. World Development Indicators, The World Bank Group, 2021,
+https://databank.worldbank.org/source/world-development-indicators
 
 # Glimpse
 *Note: If glimpse() were to be used, our document would be over the length criteria. Please visit our github repo to see full datasets. 
@@ -42,16 +45,14 @@ head(wb_tot_lifeexp)
 #glimpse(wb_f_lifeexp)
 ```
 # Data Analysis Plan
-The predictor would be health spending within a particular country. The outcome would be life expectancy (whether total or per age group). We may also explore differences in life expectancies between genders as a function of health spending within the country or the association between the geography of a country and its global health spending. We will be comparing spending across countries and life expectancies within those countries so no control group would be necessary. 
+The predictors would be health spending and economic indicators within a particular country. The outcome would be life expectancy in that country. We may also explore differences in life expectancies between genders as a function of those predictors. We will be comparing spending across countries and life expectancies within those countries, so no control group would be necessary. 
 
 ```{r prelimdataviz, warning=FALSE, fig.height = 2, fig.width = 2}
   
-pivot_longer(
-  wb_tot_lifeexp, 
+pivot_longer(wb_tot_lifeexp, 
   cols = "1995" : "2020",
   names_to = "Year" ,
-  values_to = "Life_Exp"
-  ) %>%
+  values_to = "Life_Exp") %>%
   head() %>%
   ggplot(aes(x = Year, y = Life_Exp)) +
   geom_point()
@@ -61,6 +62,7 @@ h_spend %>%
    ggplot(aes(x = year, y = the_total_mean)) +
   geom_point()
 ```
-Above we output two very simple and preliminary scatter plots for the trend in life expectancy over 5 years and health spending (labeled the_total_mean) over the same 5 years in Afghanistan. As we can see, there is a very clear and opposite trend in the data (which is contradictory to what we expect). Therefore, this is a good indication that patterns are present across the two datasets and that furthr exploration is necessary. Over the course of the project, we will combine the two datasets and create similar scatter plots with mean spending on the x-axis and life expectancy on the y-axis with possible facets or color-coordination by gender. 
 
-A regression analysis with focus on R and R^2 will be useful to analyze the relationship between health spending and life expectancies. We can also categorize the health spending into low and high categories and do the same for life expectancies. Then, we can run a Chi-Squared test for Independence to find if the two variables (now categorical) are independent or not. Our hypothesis is that higher health spending is associated with higher life expectancy. To support this, we would expect to see a positive and strong correlation (with a high positive R value and high R^2 value). We would also expect to reject the null hypothesis for independence of health spending and life expectancy through a low p-value in the Chi-Squared test. 
+Above we output two very simple and preliminary scatter plots for the trend in life expectancy over 5 years and health spending (labeled the_total_mean) over the same 5 years in Afghanistan. As we can see, there is a very clear and opposite trend in the data (which is contradictory to what we expect). Therefore, this is a good indication that patterns are present across the two datasets and that further exploration is necessary. Over the course of the project, we will combine the datasets and create similar scatter plots with mean spending on the x-axis and life expectancy on the y-axis with possible facets or color-coordination by gender. 
+
+A regression analysis with focus on R^2 will be useful to analyze the relationship between health spending and life expectancies. We can also categorize the health spending into low and high categories and do the same for life expectancies. Then, we can run a Chi-Squared test for Independence to find if the two variables (now categorical) are independent or not. Our hypothesis is that higher health spending is associated with higher life expectancy. To support this, we would expect to see a positive and strong correlation (with a high positive R value and high R^2 value). We would also expect to reject the null hypothesis for independence of health spending and life expectancy through a low p-value in the Chi-Squared test. 
