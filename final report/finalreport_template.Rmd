@@ -5,3 +5,44 @@ author: "Your names and team name here"
 date: ""
 output: pdf_document
 ---
+
+# Load Packages
+
+```{r load-packages, message = FALSE, warning = FALSE}
+library(tidyverse) 
+``` 
+
+# Load Data
+```{r load-data, message = FALSE, warning = FALSE}
+library(readr)
+h_spend <- read_csv("../data/Health-Spending.CSV")
+wb_tot_lifeexp <- read_csv("../data/World Bank Life Exp.csv")
+wb_f_lifeexp <- read_csv("../data/World Bank Female Life Exp.csv")
+wb_m_lifeexp <- read_csv("../data/World Bank Male Life Exp.csv")
+econ <- read_csv("../data/EconMetrics.csv")
+```
+
+#Combine Datasets
+```{r combine-lifeexp-data}
+wb_tot_lifeexp_long <- pivot_longer(wb_tot_lifeexp, cols = "1990":"2020", names_to = "Year", values_to = "Total Life Expectancy")
+
+wb_f_lifeexp_long <- wb_f_lifeexp %>%
+  select(c(1:2,34:64)) %>%
+  pivot_longer(cols = "1990":"2020", names_to = "Year", values_to = "Female Life Expectancy")
+
+wb_m_lifeexp_long <- wb_m_lifeexp %>%
+  select(c(1:2,34:64)) %>%
+  pivot_longer(cols = "1990":"2020", names_to = "Year", values_to = "Male Life Expectancy")
+
+lifeexp <- left_join(wb_tot_lifeexp_long, wb_f_lifeexp_long, by = c("Country Name", "Country Code", "Year"))
+
+lifeexp <- left_join(lifeexp, wb_m_lifeexp_long, by = c("Country Name", "Country Code", "Year"))
+```
+
+```{r combine_econ_data}
+yrs <- c(2011:2020)
+
+colnames(econ) <- c("Country Name", "Country Code", "Series Name", "Series Code", yrs)
+econ <- select(econ, -4)
+test_econ_wide <- pivot_wider(names_from = "Series Name", values_from = c("2011", "2012", "2013"))
+```
