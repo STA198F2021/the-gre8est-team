@@ -20,6 +20,7 @@ wb_tot_lifeexp <- read_csv("../data/World Bank Life Exp.csv")
 wb_f_lifeexp <- read_csv("../data/World Bank Female Life Exp.csv")
 wb_m_lifeexp <- read_csv("../data/World Bank Male Life Exp.csv")
 econ <- read_csv("../data/EconMetrics.csv")
+econ <- select(econ, -4)
 ```
 
 #Combine Datasets
@@ -39,10 +40,19 @@ lifeexp <- left_join(wb_tot_lifeexp_long, wb_f_lifeexp_long, by = c("Country Nam
 lifeexp <- left_join(lifeexp, wb_m_lifeexp_long, by = c("Country Name", "Country Code", "Year"))
 ```
 
-```{r combine_econ_data}
+```{r edit_econ_data}
 yrs <- c(2011:2020)
 
-colnames(econ) <- c("Country Name", "Country Code", "Series Name", "Series Code", yrs)
-econ <- select(econ, -4)
-test_econ_wide <- pivot_wider(names_from = "Series Name", values_from = c("2011", "2012", "2013"))
+colnames(econ) <- c("Country Name", "Country Code", "Series Name", yrs)
+econ_temp <- econ %>%
+  pivot_longer(cols = 4:13, names_to = "Year", values_to = "Value")
+econ_temp2 <- econ_temp %>%
+  group_by("Country Name") %>%
+  pivot_wider(names_from = "Series Name", values_from = "Value") %>%
+  ungroup()
+econ2 <- select(econ_temp2, -4)
+```
+
+```{r combine_data}
+full_data <- full_join(lifeexp, econ2, by = c("Country Name", "Country Code", "Year"))
 ```
