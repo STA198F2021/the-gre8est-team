@@ -50,15 +50,13 @@ econ_temp2 <- econ_temp %>%
   group_by("Country Name") %>%
   pivot_wider(names_from = "Series Name", values_from = "Value") %>%
   ungroup()
-econ2 <- select(econ_temp2, -4)
-i <- c(1:230)
+econ_temp3 <- select(econ_temp2, -4)
+econ2 <- filter(econ_temp3, !is.na(econ_temp3$'Country Code'))
 j <- c(4:58)
-for (x in i) {
-  for (y in j) {
-    econ2[x, y] <- as.numeric(econ2[x, y], use.name = FALSE)
-  }
-}
+econ2[j] <- lapply(econ2[j], unlist)
+econ2[j] <- lapply(econ2[j], as.numeric)
 ```
+
 ```{r edit_h_spend}
 h_spend2 <- select(h_spend, -1, -4)
 colnames(h_spend2)[1:3] <- c("Country Name", "Country Code", "Year")
