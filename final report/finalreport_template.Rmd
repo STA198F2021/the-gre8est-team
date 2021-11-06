@@ -10,6 +10,14 @@ output: pdf_document
 
 ```{r load-packages, message = FALSE, warning = FALSE}
 library(tidyverse) 
+library(ggplot2)
+library(sf)
+install.packages("rnaturalearth")
+library(rnaturalearth)
+install.packages("rnaturalearthdata")
+library(rnaturalearthdata)
+library(rgeos)
+library(scales)
 ``` 
 
 # Load Data
@@ -89,16 +97,40 @@ full_data %>%
    filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
 summary(the_per_cap_ppp_mean)
 
-#full_data %>%
- # filter(Year == 2018) %>%
-  #filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
-  #  filter(is.na(`GDP (current US$)`) == FALSE) %>%
-#ggplot(aes(x = `GDP (current US$)`, y = log(the_per_cap_ppp_mean))) + 
-#geom_point(fill = "blue") + 
-# labs(
-   # x = "Log of Mean total health spending per person (in PPP dollars)",
-   # y = "Frequency",
-   # title = "Distribution of Health Care Spending"
- # ) 
+full_data %>%
+ filter(Year == 2018) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+    filter(is.na(`GDP (current US$)`) == FALSE) %>%
+ggplot(aes(x = `GDP (current US$)`, y = log(the_per_cap_ppp_mean))) + 
+geom_point(fill = "blue") + 
+ labs(
+   x = "GDP (current US$)",
+    y = "Log of Mean total health spending per person (in PPP dollars)",
+    title = "GDP vs Health Care Spending"
+  ) 
+
+#Below, we're plotting a map of health spending around the world
+# the classic dark-on-light theme for ggplot2 is nice for maps
+theme_set(theme_bw())
+# world contains the country information for plotting in addition to a lot of other information about the countries
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+healthspending.world <- merge(world, full_data, by.x="admin", by.y="Country Name")
+
+ggplot(data = healthspending.world) +
+    geom_sf(aes(fill = log(the_per_cap_ppp_mean))) +
+    scale_fill_viridis_c(option = "plasma") +
+    labs(x = "Longitude",
+       y = "Latitude",
+       title = "Health Spending Around the World",
+       fill = "Log of Mean total health spending per person (in PPP dollars)")
+
+
+#Now we're going to choose 5 countries and plot line graphs for trends in health spending over time
+full_data %>%
+  filter(`Country Name` == "Australia" | `Country Name` == "United States of America" |  `Country Name` == "Canada" |  `Country Name` == "China") %>%
+ggplot(aes(x=Year, y=log(the_per_cap_ppp_mean), group = `Country Name`)) +
+  geom_line(aes(linetype= `Country Name`))+
+  geom_point(aes(shape=`Country Name`))
 
 ```
