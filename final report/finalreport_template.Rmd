@@ -70,8 +70,37 @@ full_data$Year = as.double(full_data$Year)
 full_data <- full_join(full_data, h_spend2, by = c("Country Name", "Country Code", "Year"))
 ```
 
-```{r editing}
-i <- c(7:62)
-sapply(full_data, class)
-full_data[, 7] <- as.numeric(unlist(full_data[, 7]))
+```{r desc_stats_health_spending}
+#Below is the distribution of log of Mean total health spending per person (in PPP dollars)
+full_data %>%
+  filter(Year == 2018) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+ggplot(aes(x = log(the_per_cap_ppp_mean))) + 
+  geom_histogram(fill = "blue") + 
+  labs(
+    x = "Log of Mean total health spending per person (in PPP dollars)",
+    y = "Frequency",
+    title = "Distribution of Health Care Spending"
+  ) 
+
+#NOTE: TO THE PLOT ABOVE, ADD NORMAL CURVE TO THE ABOVE DISTRIBUTION
+
+#Below are a few quick summary stats for health spending per person
+full_data %>%
+  select(the_per_cap_ppp_mean) %>%
+   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+summary(the_per_cap_ppp_mean)
+
+#full_data %>%
+ # filter(Year == 2018) %>%
+  #filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  #  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+#ggplot(aes(x = `GDP (current US$)`, y = log(the_per_cap_ppp_mean))) + 
+#geom_point(fill = "blue") + 
+# labs(
+   # x = "Log of Mean total health spending per person (in PPP dollars)",
+   # y = "Frequency",
+   # title = "Distribution of Health Care Spending"
+ # ) 
+
 ```
