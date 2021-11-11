@@ -265,7 +265,7 @@ ggplot(aes(x=Year, y=`Fertility rate, total (births per woman)`, group = `Countr
 
 ```{r life_expectancy_model}
 
-full_data_2 <- full_data %>%
+full_data_life_exp <- full_data %>%
   filter(Year == 2018) %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
@@ -280,4 +280,37 @@ lifeexp_fit <- linear_reg() %>%
 tidy(lifeexp_fit, conf.int=TRUE)
 
 ```
+```{r fertility_model}
 
+full_data_fertility <- full_data %>%
+  filter(Year == 2018) %>%
+  filter(is.na(`Fertility rate, total (births per woman)`) == FALSE) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
+  filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE)
+
+fertility_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Fertility rate, total (births per woman)` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)`, data = full_data_2)
+tidy(fertility_fit, conf.int=TRUE)
+
+```
+```{r mortality_model}
+
+full_data_mortality <- full_data %>%
+  filter(Year == 2018) %>%
+  filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
+  filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE)
+
+mortality_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Mortality rate, under-5 (per 1,000 live births)` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)`, data = full_data_2)
+tidy(mortality_fit, conf.int=TRUE)
+
+```
