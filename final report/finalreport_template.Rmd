@@ -1,8 +1,8 @@
 ---
 title: "Final Report"
 subtitle: "due November 16, 2021 by 11:59 PM "
-author: "Your names and team name here"
-date: ""
+author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
+date: "11/16/2021"
 output: pdf_document
 ---
 
@@ -10,6 +10,8 @@ output: pdf_document
 
 ```{r load-packages, message = FALSE, warning = FALSE}
 library(tidyverse) 
+library(tidymodels)
+library(infer)
 library(ggplot2)
 library(sf)
 library(rnaturalearth)
@@ -30,7 +32,7 @@ econ <- select(econ, -4)
 ```
 
 #Combine Datasets
-```{r combine-lifeexp-data}
+```{r combine-lifeexp-data, warning = FALSE}
 wb_tot_lifeexp_long <- pivot_longer(wb_tot_lifeexp, cols = "1990":"2020", names_to = "Year", values_to = "Total Life Expectancy")
 
 wb_f_lifeexp_long <- wb_f_lifeexp %>%
@@ -46,7 +48,7 @@ lifeexp <- left_join(wb_tot_lifeexp_long, wb_f_lifeexp_long, by = c("Country Nam
 lifeexp <- left_join(lifeexp, wb_m_lifeexp_long, by = c("Country Name", "Country Code", "Year"))
 ```
 
-```{r edit_econ_data}
+```{r edit_econ_data, warning = FALSE}
 yrs <- c(2011:2020)
 
 colnames(econ) <- c("Country Name", "Country Code", "Series Name", yrs)
@@ -63,18 +65,18 @@ econ2[j] <- lapply(econ2[j], unlist)
 econ2[j] <- lapply(econ2[j], as.numeric)
 ```
 
-```{r edit_h_spend}
+```{r edit_h_spend, warning = FALSE}
 h_spend2 <- select(h_spend, -1, -4)
 colnames(h_spend2)[1:3] <- c("Country Name", "Country Code", "Year")
 ```
 
-```{r combine_data}
+```{r combine_data, warning = FALSE}
 full_data <- full_join(lifeexp, econ2, by = c("Country Name", "Country Code", "Year"))
 full_data$Year = as.double(full_data$Year)
 full_data <- full_join(full_data, h_spend2, by = c("Country Name", "Country Code", "Year"))
 ```
 
-```{r desc_stats_health_spending}
+```{r desc_stats_health_spending, warning = FALSE}
 #Below is the distribution of log of Mean total health spending per person (in PPP dollars)
 full_data %>%
   filter(Year == 2018) %>%
@@ -260,3 +262,22 @@ ggplot(aes(x=Year, y=`Fertility rate, total (births per woman)`, group = `Countr
   geom_line(aes(linetype= `Country Name`))+
   geom_point(aes(shape=`Country Name`))
 ```
+
+```{r life_expectancy_model}
+
+full_data_2 <- full_data %>%
+  filter(Year == 2018) %>%
+  filter(is.na(`Total Life Expectancy`) == FALSE) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
+  filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE)
+
+lifeexp_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)`, data = full_data_2)
+tidy(lifeexp_fit, conf.int=TRUE)
+
+```
+
