@@ -89,6 +89,7 @@ ggplot(aes(x = log(the_per_cap_ppp_mean))) +
     title = "Distribution of Health Care Spending"
   ) 
 
+
 #NOTE: TO THE PLOT ABOVE, ADD NORMAL CURVE TO THE ABOVE DISTRIBUTION
 
 #Below are a few quick summary stats for health spending per person
