@@ -14,7 +14,9 @@ library(tidymodels)
 library(infer)
 library(ggplot2)
 library(sf)
+#install.packages("rnaturalearth")
 library(rnaturalearth)
+#install.packages("rnaturalearthdata")
 library(rnaturalearthdata)
 library(rgeos)
 library(scales)
@@ -27,8 +29,10 @@ h_spend <- read_csv("../data/Health-Spending.CSV")
 wb_tot_lifeexp <- read_csv("../data/World Bank Life Exp.csv")
 wb_f_lifeexp <- read_csv("../data/World Bank Female Life Exp.csv")
 wb_m_lifeexp <- read_csv("../data/World Bank Male Life Exp.csv")
-econ <- read_csv("../data/EconMetrics.csv")
-econ <- select(econ, -4)
+# econ <- read_csv("../data/EconMetrics.csv")
+# econ <- select(econ, -4)
+misc_data <- read_csv("../data/World Bank Data.csv")
+misc_data <- select(misc_data, -4)
 ```
 
 #Combine Datasets
@@ -48,21 +52,38 @@ lifeexp <- left_join(wb_tot_lifeexp_long, wb_f_lifeexp_long, by = c("Country Nam
 lifeexp <- left_join(lifeexp, wb_m_lifeexp_long, by = c("Country Name", "Country Code", "Year"))
 ```
 
-```{r edit_econ_data, warning = FALSE}
+# ```{r edit_econ_data, warning = FALSE}
+# yrs <- c(2011:2020)
+
+# colnames(econ) <- c("Country Name", "Country Code", "Series Name", yrs)
+# econ_temp <- econ %>%
+#   pivot_longer(cols = 4:13, names_to = "Year", values_to = "Value")
+# econ_temp2 <- econ_temp %>%
+#   group_by("Country Name") %>%
+#   pivot_wider(names_from = "Series Name", values_from = "Value") %>%
+#   ungroup()
+# econ_temp3 <- select(econ_temp2, -4)
+# econ2 <- filter(econ_temp3, !is.na(econ_temp3$'Country Code'))
+# j <- c(4:58)
+# econ2[j] <- lapply(econ2[j], unlist)
+# econ2[j] <- lapply(econ2[j], as.numeric)
+# ```
+
+```{r edit_misc_data, warning = FALSE}
 yrs <- c(2011:2020)
 
-colnames(econ) <- c("Country Name", "Country Code", "Series Name", yrs)
-econ_temp <- econ %>%
+colnames(misc_data) <- c("Country Name", "Country Code", "Series Name", yrs)
+misc_temp <- misc_data %>%
   pivot_longer(cols = 4:13, names_to = "Year", values_to = "Value")
-econ_temp2 <- econ_temp %>%
+misc_temp2 <- misc_temp %>%
   group_by("Country Name") %>%
   pivot_wider(names_from = "Series Name", values_from = "Value") %>%
   ungroup()
-econ_temp3 <- select(econ_temp2, -4)
-econ2 <- filter(econ_temp3, !is.na(econ_temp3$'Country Code'))
-j <- c(4:58)
-econ2[j] <- lapply(econ2[j], unlist)
-econ2[j] <- lapply(econ2[j], as.numeric)
+misc_temp3 <- select(misc_temp2, -4, -18)
+misc_data2 <- misc_temp3[-c(2171:2610),]
+j <- c(4:16)
+misc_data2[j] <- lapply(misc_data2[j], unlist)
+misc_data2[j] <- lapply(misc_data2[j], as.numeric)
 ```
 
 ```{r edit_h_spend, warning = FALSE}
@@ -71,7 +92,7 @@ colnames(h_spend2)[1:3] <- c("Country Name", "Country Code", "Year")
 ```
 
 ```{r combine_data, warning = FALSE}
-full_data <- full_join(lifeexp, econ2, by = c("Country Name", "Country Code", "Year"))
+full_data <- full_join(lifeexp, misc_data2, by = c("Country Name", "Country Code", "Year"))
 full_data$Year = as.double(full_data$Year)
 full_data <- full_join(full_data, h_spend2, by = c("Country Name", "Country Code", "Year"))
 ```
