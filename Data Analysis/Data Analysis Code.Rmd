@@ -288,20 +288,49 @@ ggplot(aes(x=Year, y=`Fertility rate, total (births per woman)`, group = `Countr
 ```{r life_expectancy_model}
 
 full_data_life_exp <- full_data %>%
-  filter(Year == 2018) %>%
+  filter(Year == 2015) %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
   filter(is.na(`GDP (current US$)`) == FALSE) %>%
   filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
   filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
-  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE)
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE)
+
+lifeexp_fullfit <- linear_reg() %>%
+ set_engine("lm") %>%
+fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  `GDP (current US$)` +`GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_life_exp)
+tidy(lifeexp_fullfit, conf.int=TRUE)
+
+glance(lifeexp_fullfit)$r.squared
+glance(lifeexp_fullfit)$adj.r.squared
+
+sig_data_life_exp <- full_data %>%
+  filter(Year == 2015) %>%
+  filter(is.na(`Total Life Expectancy`) == FALSE) %>%
+  filter(`Total Life Expectancy` != '..') %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE)
 
 lifeexp_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)`, data = full_data_2)
+  fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = sig_data_life_exp)
 tidy(lifeexp_fit, conf.int=TRUE)
 
+glance(lifeexp_fit)$r.squared
+glance(lifeexp_fit)$adj.r.squared
+
+lifeexp_fit_aug <- augment(lifeexp_fit$fit)
+
+ggplot(full_data_life_exp,aes(x = log(the_per_cap_ppp_mean),y = `Total Life Expectancy`, z= `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)) +
+  geom_point()
+
+ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
+  labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
 ```
+
 ```{r fertility_model}
 
 full_data_fertility <- full_data %>%
