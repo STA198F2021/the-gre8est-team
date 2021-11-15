@@ -291,11 +291,49 @@ full_data %>%
   view()
 ```
 
-```{r life_expectancy_model}
+
+```{r mainlifeexp}
+full_data_test <- full_data %>%
+  filter(is.na(`Total Life Expectancy`) == FALSE) %>%
+  filter(`Total Life Expectancy` != '..') %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
+  
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(gdp = log(`GDP (current US$)`)) %>%
+  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) %>%
+  mutate(gdpg = `GDP growth (annual %)`)
+  
+full_data_test$spending2 <- full_data_test$spending^2
+full_data_test$education2 <- full_data_test$education^2
+
+test_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Total Life Expectancy` ~  
+        spending 
+      + spending2 
+      + gdp
+      + poverty
+      + education 
+      + education2
+      ,data = full_data_test)
+tidy(test_fit, conf.int=TRUE)
+
+glance(test_fit)$r.squared
+glance(test_fit)$adj.r.squared
+
+ggplot(full_data_test, aes(x = gdpg, y = `Total Life Expectancy`)) +
+  geom_point()
+```
+
+```{r full_life_expectancy_model}
 
 full_data_life_exp <- full_data %>%
-  filter(Year == 2015) %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
+  filter(`Total Life Expectancy` != '..') %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
   filter(is.na(`GDP (current US$)`) == FALSE) %>%
   filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
@@ -306,21 +344,43 @@ full_data_life_exp <- full_data %>%
 lifeexp_fullfit <- linear_reg() %>%
  set_engine("lm") %>%
 fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  `GDP (current US$)` +`GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_life_exp)
+
 tidy(lifeexp_fullfit, conf.int=TRUE)
 
 glance(lifeexp_fullfit)$r.squared
 glance(lifeexp_fullfit)$adj.r.squared
 
+```
+
+```{r sig_life_expectancy_model}
 sig_data_life_exp <- full_data %>%
-  filter(Year == 2015) %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(`Total Life Expectancy` != '..') %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
-  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE)
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
+  
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(gdp = log(`GDP (current US$)`)) %>%
+  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) %>%
+  mutate(gdpg = `GDP growth (annual %)`)
+
+sig_data_life_exp$spending2 <- full_data_test$spending^2
+sig_data_life_exp$education2 <- full_data_test$education^2
 
 lifeexp_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = sig_data_life_exp)
+  fit(`Total Life Expectancy` ~  
+        spending 
+      + spending2 
+      + gdp
+      + poverty
+      + education 
+      + education2
+      ,data = sig_data_life_exp)
+
 tidy(lifeexp_fit, conf.int=TRUE)
 
 glance(lifeexp_fit)$r.squared
@@ -328,46 +388,124 @@ glance(lifeexp_fit)$adj.r.squared
 
 lifeexp_fit_aug <- augment(lifeexp_fit$fit)
 
-ggplot(full_data_life_exp,aes(x = log(the_per_cap_ppp_mean),y = `Total Life Expectancy`, z= `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)) +
-  geom_point()
-
 ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
   labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
 ```
 
-```{r fertility_model}
 
-full_data_fertility <- full_data %>%
-  filter(Year == 2018) %>%
-  filter(is.na(`Fertility rate, total (births per woman)`) == FALSE) %>%
+```{r test2}
+full_data_test2 <- full_data %>%
+  filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
   filter(is.na(`GDP (current US$)`) == FALSE) %>%
-  filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
+  #filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
   filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
-  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE)
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
+  
+  mutate(mortality = log(`Mortality rate, under-5 (per 1,000 live births)`)) %>%
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(gdp = log(`GDP (current US$)`)) %>%
+  mutate(income = `Income share held by lowest 20%`) %>%
+  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)
+ 
 
-fertility_fit <- linear_reg() %>%
+full_data_test2$spending2 <- full_data_test2$spending^2
+full_data_test2$gdp2 <- full_data_test2$gdp^2
+full_data_test2$income2 <- full_data_test2$income^2
+full_data_test2$poverty2 <- full_data_test2$poverty^2
+full_data_test2$education2 <- full_data_test2$`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`^2
+
+test2_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(`Fertility rate, total (births per woman)` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)`, data = full_data_2)
-tidy(fertility_fit, conf.int=TRUE)
+  fit(mortality ~  spending 
+      + spending2
+      + gdp
+      + gdp2
+      + income
+      + income2
+      + poverty2
+      + education
+      + education2
+      ,data = full_data_test2)
+tidy(test2_fit, conf.int=TRUE)
 
+glance(test2_fit)$r.squared
+glance(test2_fit)$adj.r.squared
+
+ggplot(full_data_test2, aes(x = education, y = mortality)) +
+  geom_point()
 ```
-```{r mortality_model}
+
+```{r full_mortality_model}
 
 full_data_mortality <- full_data %>%
-  filter(Year == 2018) %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
   filter(is.na(`GDP (current US$)`) == FALSE) %>%
   filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
   filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
-  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE)
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE)
+  
+mortality_fullfit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Mortality rate, under-5 (per 1,000 live births)` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_mortality)
+
+tidy(mortality_fullfit, conf.int=TRUE)
+
+glance(mortality_fullfit)$r.squared
+glance(mortality_fullfit)$adj.r.squared
+
+```
+
+```{r sig_mortality_model}
+sig_data_mortality <- full_data %>%
+  filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`Income share held by lowest 20%`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
+  
+  mutate(mortality = log(`Mortality rate, under-5 (per 1,000 live births)`)) %>%
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(gdp = log(`GDP (current US$)`)) %>%
+  mutate(income = `Income share held by lowest 20%`) %>%
+  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)
+ 
+
+sig_data_mortality$spending2 <- sig_data_mortality$spending^2
+sig_data_mortality$gdp2 <- sig_data_mortality$gdp^2
+sig_data_mortality$income2 <- sig_data_mortality$income^2
+sig_data_mortality$poverty2 <- sig_data_mortality$poverty^2
+sig_data_mortality$education2 <- sig_data_mortality$education^2
 
 mortality_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(`Mortality rate, under-5 (per 1,000 live births)` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)`, data = full_data_2)
+  fit(mortality ~  spending 
+      + spending2
+      + gdp
+      + gdp2
+      + income
+      + income2
+      + poverty2
+      + education
+      + education2
+      ,data = sig_data_mortality)
 tidy(mortality_fit, conf.int=TRUE)
 
+glance(mortality_fit)$r.squared
+glance(mortality_fit)$adj.r.squared
+
+mortality_fit_aug <- augment(mortality_fit$fit)
+
+ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
+  labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
 ```
