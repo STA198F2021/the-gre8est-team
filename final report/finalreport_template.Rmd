@@ -18,6 +18,7 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(rgeos)
 library(scales)
+library(grid)
 ``` 
 
 ```{r load-data, message = FALSE, warning = FALSE, echo=FALSE}
@@ -95,7 +96,7 @@ full_data %>%
 ```
 As you can see, the quartiles have enormous range between them. To standardize and reduce variation further, we took the log of the spending per person, and got an approximately normal distribution of healthcare spending across countries:
 
-```{r lifeexp-histo, warning = FALSE, echo=FALSE}
+```{r outcome-histo, warning = FALSE, echo=FALSE}
 p_lifeexp <- full_data %>%
   ggplot(aes(full_data$'Total Life Expectancy')) + 
   geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
@@ -104,17 +105,118 @@ p_lifeexp <- full_data %>%
     y = "Frequency",
     title = "Distribution of Life Expectancy"
   ) 
+
+p_fert <- full_data %>%
+  ggplot(aes(full_data$'Fertility rate, total (births per woman)')) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Fertility Rate (Births per Woman)",
+    y = "Frequency",
+    title = "Distribution of Fertility Rate"
+  ) 
+
+p_log_fert <- full_data %>%
+  ggplot(aes((log(full_data$'Fertility rate, total (births per woman)')))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Fertility Rate (Log of Births per Woman)",
+    y = "Frequency",
+    title = "Distribution of Fertility Rate"
+  )
+
+p_mort <- full_data %>%
+  ggplot(aes(full_data$`Mortality rate, under-5 (per 1,000 live births)`)) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Mortality Rate (Log per 1,000 Live Births)",
+    y = "Frequency",
+    title = "Distribution of Mortality Rate"
+  )
+
+p_log_mort <- full_data %>%
+  ggplot(aes(log(full_data$`Mortality rate, under-5 (per 1,000 live births)`))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Mortality Rate (per 1,000 Live Births)",
+    y = "Frequency",
+    title = "Distribution of Mortality Rate"
+  )
 ```
 
 ```{r healtcarespendinghisto, warning = FALSE, echo=FALSE}
 p_the <- full_data %>%
+  ggplot(aes(x = the_per_cap_ppp_mean)) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Mean Total Health Spending per Person (in PPP dollars)",
+    y = "Frequency",
+    title = "Distribution of Health Care Spending"
+  )
+
+p_log_the <- full_data %>%
   ggplot(aes(x = log(the_per_cap_ppp_mean))) + 
   geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
   labs(
     x = "Log of Mean total health spending per person (in PPP dollars)",
     y = "Frequency",
     title = "Distribution of Health Care Spending"
-  ) 
+  )
+
+p_log_pov <- full_data %>%
+  ggplot(aes(log(full_data$`Poverty headcount ratio at national poverty lines (% of population)`))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Log Poverty Headcount Ratio",
+    y = "Frequency",
+    title = "Distribution of Poverty Headcount"
+  )
+
+p_pov <- full_data %>%
+  ggplot(aes(full_data$`Poverty headcount ratio at national poverty lines (% of population)`)) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Poverty Headcount Ratio",
+    y = "Frequency",
+    title = "Distribution of Poverty Headcount"
+  )
+
+p_log_gdp <- full_data %>%
+  ggplot(aes(log(full_data$`GDP per capita (current US$)`))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Log GDP",
+    y = "Frequency",
+    title = "Distribution of GDP"
+  )
+
+p_gdpg <- full_data %>%
+  ggplot(aes(log(full_data$`GDP per capita growth (annual %)`))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "GDP Growth",
+    y = "Frequency",
+    title = "Distribution of GDP Growth"
+  )
+
+p_inc <- full_data %>%
+  ggplot(aes(full_data$`Income share held by lowest 20%`)) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Income Share Held by Lowest 20%",
+    y = "Frequency",
+    title = "Distribution of Income Share"
+  )
+
+p_edu <- full_data %>%
+  ggplot(aes(full_data$`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Secondary Education Completion (%)",
+    y = "Frequency",
+    title = "Distribution of Secondary Educational Attainment"
+  )
+
+grid.arrange(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu, rows = 2)
 ```
 
 Then, we looked at healthcare spending over time in a few selected countries to see any trends in the data:
