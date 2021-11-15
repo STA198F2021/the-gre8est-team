@@ -74,6 +74,7 @@ colnames(h_spend2)[1:3] <- c("Country Name", "Country Code", "Year")
 full_data <- full_join(lifeexp, misc_data2, by = c("Country Name", "Country Code", "Year"))
 full_data$Year = as.double(full_data$Year)
 full_data <- full_join(full_data, h_spend2, by = c("Country Name", "Country Code", "Year"))
+full_data$`Total Life Expectancy` = as.numeric(full_data$`Total Life Expectancy`)
 ```
 
 # Background
@@ -83,6 +84,85 @@ full_data <- full_join(full_data, h_spend2, by = c("Country Name", "Country Code
 # Data Overview
 
 # Descriptive Stats
+Following the data-cleaning, we ran some descriptive statistics to visualize the data. The first thing we noticed was that healthcare spending variation was extremely large across countries. To standardize the numbers across countries, we attempted to look at just the healthcare spending per person, but even that yielded huge variation across countries:
+```{r healthcarespenindsummarystat, warning = FALSE, echo = FALSE}
+full_data %>%
+  select(the_per_cap_ppp_mean) %>%
+   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+summary(the_per_cap_ppp_mean)
+```
+As you can see, the quartiles have enormous range between them. To standardize and reduce variation further, we took the log of the spending per person, and got an approximately normal distribution of healthcare spending across countries:
+```{r healtcarespendinghisto, warning = FALSE, echo=FALSE}
+full_data %>%
+  filter(Year == 2018) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+ggplot(aes(x = log(the_per_cap_ppp_mean))) + 
+  geom_histogram(fill = "blue") + 
+  labs(
+    x = "Log of Mean total health spending per person (in PPP dollars)",
+    y = "Frequency",
+    title = "Distribution of Health Care Spending"
+  ) 
+```
+Then, we looked at healthcare spending over time in a few selected countries to see any trends in the data:
+```{r healthspendinglinegraph, warning =FALSE, echo=FALSE}
+full_data %>%
+  filter(`Country Name` == "Australia" | `Country Name` == "United States of America" |  `Country Name` == "Canada" |  `Country Name` == "China" | `Country Name` == "Indonesia" | `Country Name` == "Russia" | `Country Name` == "Sudan") %>%
+ggplot(aes(x=Year, y=log(the_per_cap_ppp_mean), group = `Country Name`)) +
+  geom_line(aes(linetype= `Country Name`))+
+  geom_point(aes(shape=`Country Name`)) +
+ labs( 
+   title = "Health Spending Around the World Over Time",
+       y = "Log of Mean total health spending per person (in PPP dollars)")
+```
+We found that healthcare spending generally increased over time in developed countries and was also significantly larger in Western than Eastern countries. This would be confirmed when we mapped health care spending. While mapping, we also mapped what would later be one of our response variables: life expectancy. We wanted to visualize life expectancy across countries to see any geographic patterns:
+```{r healthspending_and_lifeexpectancymap, warning =FALSE, echo=FALSE, fig.width=10}
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+full_data1 = full_data %>%
+  filter(Year == 2015)
+healthspending.world <- merge(world, full_data1, by.x="admin", by.y="Country Name")
+
+ggplot(data = healthspending.world) +
+    geom_sf(aes(fill = log(the_per_cap_ppp_mean))) +
+    scale_fill_viridis_c(option = "plasma") +
+    labs(x = "Longitude",
+       y = "Latitude",
+       title = "Health Spending Around the World",
+       fill = "Log of Mean total health spending per person (in PPP dollars)")
+
+ggplot(data = healthspending.world) +
+    geom_sf(aes(fill = `Mortality rate, under-5 (per 1,000 live births)`)) +
+    scale_fill_viridis_c(option = "plasma") +
+    labs(x = "Longitude",
+       y = "Latitude",
+       title = "Mortality Rates Around the World",
+       fill = "Mortality Rates Under 5")
+
+ggplot(data = healthspending.world) +
+    geom_sf(aes(fill = `Total Life Expectancy`)) +
+    scale_fill_viridis_c(option = "plasma") +
+    labs(x = "Longitude",
+       y = "Latitude",
+       title = "Life Expectancies Around the World",
+       fill = "Life Expectancy")
+```
+We saw the same pattern as in the line charts where Western countries had significantly higher healthcare spending but also higher life expectancy and lower mortality rates. The same trend was generally true for developed compared to non-developed regions. We also began to notice the problem of missingness in our dataset where mortality rates and life epxectancies for some countries (most notably the U.S.) were absent.
+
+Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes (being mortality rates under 5 and life expectancy). We used scatterplots to do so:
+```{r healthspending_vs_lifeeexpectancy, warning =FALSE, echo=FALSE}
+full_data1 %>%
+ggplot(aes(x = log(the_per_cap_ppp_mean), y = `Total Life Expectancy`)) + 
+  geom_point(alpha = 0.6) +
+labs( x= "Log of Mean total health spending per person (in PPP dollars)", y = "Total Life Expectancy")
+
+full_data1 %>%
+ggplot(aes(x = log(the_per_cap_ppp_mean), y = `Mortality rate, under-5 (per 1,000 live births)`)) + 
+  geom_point(alpha = 0.6) +
+labs( x= "Log of Mean total health spending per person (in PPP dollars)", y = "Mortality Rates Under 5")
+```
+There is a clear positive linear relationship between healthcare spending and life expectancy but a more exponential-decay trend in healthcare spending and mortality rates under 5. Viewing these trends would come in helpful when modelling. Within the descriptive statistics portion of our project, we also explored healthcare spending by GDP, distributions of mortality rates, life expectancies, and fertility rates, male vs. female life expectancy distributions, and line graphs of health outcomes over time. However, the most significant graphs and visualizations are included above as these helped the most in understanding our data set and fitting the proper models. In addition to this, some outcomes such as fertility rates were excluded after data visualization due the missingness in that variable being to great to deal with. 
+
 
 # Modelling
 

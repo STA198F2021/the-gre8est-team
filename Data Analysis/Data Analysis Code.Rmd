@@ -137,7 +137,9 @@ theme_set(theme_bw())
 # world contains the country information for plotting in addition to a lot of other information about the countries
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
-healthspending.world <- merge(world, full_data, by.x="admin", by.y="Country Name")
+full_data1 = full_data %>%
+  filter(Year == 2015)
+healthspending.world <- merge(world, full_data1, by.x="admin", by.y="Country Name")
 
 ggplot(data = healthspending.world) +
     geom_sf(aes(fill = log(the_per_cap_ppp_mean))) +
@@ -146,7 +148,6 @@ ggplot(data = healthspending.world) +
        y = "Latitude",
        title = "Health Spending Around the World",
        fill = "Log of Mean total health spending per person (in PPP dollars)")
-
 
 #Now we're going to choose 5 countries and plot line graphs for trends in health spending over time
 full_data %>%
@@ -217,6 +218,7 @@ summary(`Mortality rate, under-5 (per 1,000 live births)`)
 
 
 #Maps for all three health outcomes - troubleshoot why colors not displayed
+
 ggplot(data = healthspending.world) +
     geom_sf(aes(fill = `Mortality rate, under-5 (per 1,000 live births)`)) +
     scale_fill_viridis_c(option = "plasma") +
@@ -283,6 +285,10 @@ full_data %>%
 ggplot(aes(x=Year, y=`Fertility rate, total (births per woman)`, group = `Country Name`)) +
   geom_line(aes(linetype= `Country Name`))+
   geom_point(aes(shape=`Country Name`))
+
+full_data %>%
+  select(`Country Name`, `Mortality rate, under-5 (per 1,000 live births)`) %>%
+  view()
 ```
 
 ```{r life_expectancy_model}
