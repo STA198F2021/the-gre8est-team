@@ -254,7 +254,8 @@ We found that healthcare spending generally increased over time in developed cou
 world <- ne_countries(scale = "medium", returnclass = "sf")
 full_data1 = full_data %>%
   filter(Year == 2014)
-healthspending.world <- merge(world, full_data1, by.x="admin", by.y="Country Name")
+healthspending.world2 <- merge(world, full_data1, by.x="admin", by.y="Country Name")
+healthspending.world <- merge(world, full_data1, by.x="adm0_a3", by.y="Country Code")
 
 ggplot(data = healthspending.world) +
     geom_sf(aes(fill = log(the_per_cap_ppp_mean))) +
