@@ -292,43 +292,6 @@ full_data %>%
 ```
 
 
-```{r mainlifeexp}
-full_data_test <- full_data %>%
-  filter(is.na(`Total Life Expectancy`) == FALSE) %>%
-  filter(`Total Life Expectancy` != '..') %>%
-  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
-  filter(is.na(`GDP (current US$)`) == FALSE) %>%
-  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
-  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
-  
-  mutate(spending = log(the_per_cap_ppp_mean)) %>%
-  mutate(gdp = log(`GDP (current US$)`)) %>%
-  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
-  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) %>%
-  mutate(gdpg = `GDP growth (annual %)`)
-  
-full_data_test$spending2 <- full_data_test$spending^2
-full_data_test$education2 <- full_data_test$education^2
-
-test_fit <- linear_reg() %>%
-  set_engine("lm") %>%
-  fit(`Total Life Expectancy` ~  
-        spending 
-      + spending2 
-      + gdp
-      + poverty
-      + education 
-      + education2
-      ,data = full_data_test)
-tidy(test_fit, conf.int=TRUE)
-
-glance(test_fit)$r.squared
-glance(test_fit)$adj.r.squared
-
-ggplot(full_data_test, aes(x = gdpg, y = `Total Life Expectancy`)) +
-  geom_point()
-```
-
 ```{r full_life_expectancy_model}
 
 full_data_life_exp <- full_data %>%
@@ -350,7 +313,15 @@ tidy(lifeexp_fullfit, conf.int=TRUE)
 glance(lifeexp_fullfit)$r.squared
 glance(lifeexp_fullfit)$adj.r.squared
 
+lifeexp_fullfit_aug <- augment(lifeexp_fullfit$fit)
+
+ggplot(lifeexp_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
+  labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
+
 ```
+
 
 ```{r sig_life_expectancy_model}
 sig_data_life_exp <- full_data %>%
@@ -364,11 +335,10 @@ sig_data_life_exp <- full_data %>%
   mutate(spending = log(the_per_cap_ppp_mean)) %>%
   mutate(gdp = log(`GDP (current US$)`)) %>%
   mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
-  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) %>%
-  mutate(gdpg = `GDP growth (annual %)`)
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)
 
-sig_data_life_exp$spending2 <- full_data_test$spending^2
-sig_data_life_exp$education2 <- full_data_test$education^2
+sig_data_life_exp$spending2 <- sig_data_life_exp$spending^2
+sig_data_life_exp$education2 <- sig_data_life_exp$education^2
 
 lifeexp_fit <- linear_reg() %>%
   set_engine("lm") %>%
@@ -392,6 +362,56 @@ ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
   labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
+```
+
+
+```{r mixed_life_expectancy_model}
+mixed_data_life_exp <- full_data %>%
+  filter(is.na(`Total Life Expectancy`) == FALSE) %>%
+  filter(`Total Life Expectancy` != '..') %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`GDP growth (annual %)`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
+  
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(gdp = log(`GDP (current US$)`)) %>%
+  mutate(gdpg = `GDP growth (annual %)`) %>%
+  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)
+
+mixed_data_life_exp$spending2 <- mixed_data_life_exp$spending^2
+mixed_data_life_exp$education2 <- mixed_data_life_exp$education^2
+
+lifeexp_mixedfit<- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Total Life Expectancy` ~  
+        spending 
+      + spending2 
+      + gdp
+      + poverty
+      + education 
+      + education2
+      + poverty*education
+      + gdpg*education
+      + gdp*poverty
+      + gdp*education
+      + spending*poverty
+      ,data = mixed_data_life_exp)
+
+tidy(lifeexp_mixedfit, conf.int=TRUE)
+
+glance(lifeexp_mixedfit)$r.squared
+glance(lifeexp_mixedfit)$adj.r.squared
+
+lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
+
+ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
+  labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
+
 ```
 
 
@@ -460,7 +480,15 @@ tidy(mortality_fullfit, conf.int=TRUE)
 glance(mortality_fullfit)$r.squared
 glance(mortality_fullfit)$adj.r.squared
 
+mortality_fullfit_aug <- augment(mortality_fullfit$fit)
+
+ggplot(mortality_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
+  labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
+
 ```
+
 
 ```{r sig_mortality_model}
 sig_data_mortality <- full_data %>%
