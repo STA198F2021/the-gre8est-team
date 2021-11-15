@@ -292,7 +292,7 @@ full_data %>%
 ```
 
 
-```{r full_life_expectancy_model}
+```{r full_life_expectancy_model, warning = FALSE, echo = FALSE}
 
 full_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
@@ -323,7 +323,7 @@ ggplot(lifeexp_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 ```
 
 
-```{r sig_life_expectancy_model}
+```{r sig_life_expectancy_model, warning = FALSE, echo = FALSE}
 sig_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(`Total Life Expectancy` != '..') %>%
@@ -365,7 +365,7 @@ ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 ```
 
 
-```{r mixed_life_expectancy_model}
+```{r mixed_life_expectancy_model, warning = FALSE, echo = FALSE}
 mixed_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(`Total Life Expectancy` != '..') %>%
@@ -415,7 +415,7 @@ ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 ```
 
 
-```{r full_mortality_model}
+```{r full_mortality_model, warning = FALSE, echo = FALSE}
 
 full_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
@@ -445,7 +445,7 @@ ggplot(mortality_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 ```
 
 
-```{r sig_mortality_model}
+```{r sig_mortality_model, warning = FALSE, echo = FALSE}
 sig_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
@@ -492,7 +492,7 @@ ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
 ```
 
-```{r mixed_mortality_model}
+```{r mixed_mortality_model, warning = FALSE, echo = FALSE}
 mixed_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
