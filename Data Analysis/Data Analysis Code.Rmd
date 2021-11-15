@@ -291,6 +291,44 @@ full_data %>%
   view()
 ```
 
+
+```{r test}
+#FIX THIS
+full_data_test <- full_data %>%
+  filter(is.na(`Total Life Expectancy`) == FALSE) %>%
+  filter(`Total Life Expectancy` != '..') %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  filter(is.na(`Poverty headcount ratio at national poverty lines (% of population)`) == FALSE) %>%
+  filter(is.na(`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`) == FALSE) %>%
+  
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(gdp = log(`GDP (current US$)`)) %>%
+  mutate(poverty = `Poverty headcount ratio at national poverty lines (% of population)`) %>%
+  mutate(education = `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)
+
+full_data_test$spending2 <- full_data_test$spending^2
+full_data_test$education2 <- full_data_test$education^2
+
+test_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(`Total Life Expectancy` ~  
+        spending 
+      + spending2 
+      + gdp
+      + poverty
+      + education 
+      + education2
+      ,data = full_data_test)
+tidy(test_fit, conf.int=TRUE)
+
+glance(test_fit)$r.squared
+glance(test_fit)$adj.r.squared
+
+ggplot(full_data_test, aes(x = gdp, y = `Total Life Expectancy`)) +
+  geom_point()
+```
+
 ```{r life_expectancy_model}
 
 full_data_life_exp <- full_data %>%
@@ -337,6 +375,34 @@ ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
 ```
 
+```{r test2}
+full_data_test2 <- full_data %>%
+  filter(is.na(`Fertility rate, total (births per woman)`) == FALSE) %>%
+  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
+  filter(is.na(`GDP (current US$)`) == FALSE) %>%
+  mutate(spending = log(the_per_cap_ppp_mean)) %>%
+  mutate(fertility = log(`Fertility rate, total (births per woman)`))
+
+full_data_test2$spending2 <- full_data_test2$spending^2
+#full_data_test$poverty2 <- full_data_test$`Poverty headcount ratio at national poverty lines (% of population)`^2
+#full_data_test$education2 <- full_data_test$`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`^2
+
+test2_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(fertility ~  spending 
+      + spending2 
+      + log(`GDP (current US$)`)
+      ,data = full_data_test2)
+tidy(test2_fit, conf.int=TRUE)
+
+glance(test2_fit)$r.squared
+glance(test2_fit)$adj.r.squared
+
+ggplot(full_data_test2, aes(x = `GDP (current US$)`, y = `Fertility rate, total (births per woman)`)) +
+  geom_point()
+```
+
+
 ```{r fertility_model}
 
 full_data_fertility <- full_data %>%
@@ -354,6 +420,7 @@ fertility_fit <- linear_reg() %>%
 tidy(fertility_fit, conf.int=TRUE)
 
 ```
+
 ```{r mortality_model}
 
 full_data_mortality <- full_data %>%
