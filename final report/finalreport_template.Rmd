@@ -78,6 +78,8 @@ full_data$`Total Life Expectancy` = as.numeric(full_data$`Total Life Expectancy`
 ```
 
 # Background
+Period life expectancy is often used as a measure of the overall health of a population. It is derived from the probabilities of people of certain age groups dying given the mortality rates of those age groups over a specific time frame. The probabilities are then used in a survival function to project the average age of death of a newborn of that time period [1].
+
 
 # Research Question
 
@@ -166,4 +168,6 @@ There is a clear positive linear relationship between healthcare spending and li
 
 # Modelling
 
+# References
+ [1] Luy, Marc et al. "Life Expectancy: Frequently Used, but Hardly Understood." Gerontology, vol. 66, no. 1, 2019, pp. 95-104, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7026938/.
 
