@@ -94,7 +94,7 @@ Like similar studies, we have chosen to analyze life expectancy and under-5 mort
 This analysis aims to determine the significance of relationships between a set of World Development Indicators and health outcomes, measured by life expectancy and under-5 mortality rate.
 
 # Data
-We are combining health spending data from the Global Health Data Exchange [5] and world economic/health-related data from the World Bank [6], ranging from 1990-2020. For these data sets, we will be analyzing data from the 204 countries and territories that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, year, and total health expenditure (THE) per capita in purchasing power parity (PPP) dollars (2020 USD). Purchasing power parity accounts for the differences in economic and standards of living between countries. The World Bank collects data through various sources, mostly through national statistical systems of member countries. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), female life expectancy at birth (years), GDP (current US dollars), GDP growth (annual %), income share held by lowest 20%, inflation/GDP deflation (annual %), mortality rate under 5 (per 1,000 live births), population total, population growth (annual %), and poverty headcount ratio at national poverty lines (% of population) [6].
+We are combining health spending data from the Global Health Data Exchange [5] and world economic/health-related data from the World Bank [6], ranging from 1990-2020. For these data sets, we will be analyzing data from the 204 countries and territories that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, year, and total health expenditure (THE) per capita in purchasing power parity (PPP) dollars (2020 USD). Purchasing power parity accounts for the differences in economic and standards of living between countries. The World Bank collects data through various sources, mostly through national statistical systems of member countries. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), female life expectancy at birth (years), GDP (current US dollars), GDP growth (annual %), income share held by lowest 20%, mortality rate under 5 (per 1,000 live births), poverty headcount ratio at national poverty lines (% of population), and educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative) [6].
 
 # Descriptive Stats
 Following the data-cleaning, we ran some descriptive statistics to visualize the data. The first thing we noticed was that healthcare spending variation was extremely large across countries. To standardize the numbers across countries, we attempted to look at just the healthcare spending per person, but even that yielded huge variation across countries:
@@ -302,10 +302,15 @@ labs( x= "Log of Mean THE per Capita (in PPP dollars)", y = "Mortality Rates Und
 ```
 There is a clear positive linear relationship between healthcare spending and life expectancy but a more exponential-decay trend in healthcare spending and mortality rates under 5. Viewing these trends would come in helpful when modelling. Within the descriptive statistics portion of our project, we also explored healthcare spending by GDP, distributions of mortality rates, life expectancies, and fertility rates, male vs. female life expectancy distributions, and line graphs of health outcomes over time. However, the most significant graphs and visualizations are included above as these helped the most in understanding our data set and fitting the proper models. In addition to this, some outcomes such as fertility rates were excluded after data visualization due the missingness in that variable being to great to deal with. 
 
-
 # Modelling
 
-```{r full_life_expectancy_model, warning = FALSE, echo = FALSE}
+In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R^2, and a quadratic model with interaction effects using only the covariates that increased adjusted R^2. Adjusted R^2 and residual plots were used for assessing and selecting models. 
+
+**Life Expectancy Simple Linear Model**
+
+Total Life Expectancy = 5.172657e+01 + 4.323399[log(THE per capita in PPP dollars)] - 1.832415e-13[GDP] - 7.155914e-02[GDP growth] - 2.228937e-01[Income share held by lowest 20%] - 9.971395e-02[Poverty headcount ratio] - 4.586646e-02[Educational attainment]
+
+```{r full_life_expectancy_model_table, include = FALSE}
 
 full_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
@@ -322,21 +327,31 @@ lifeexp_fullfit <- linear_reg() %>%
 fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  `GDP (current US$)` +`GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_life_exp)
 
 tidy(lifeexp_fullfit, conf.int=TRUE)
+```
 
+
+``` {r full_life_expectancy_model_r2, include = FALSE}
 glance(lifeexp_fullfit)$r.squared
 glance(lifeexp_fullfit)$adj.r.squared
+```
 
+The R^2 for the life expectancy simple linear model is 0.8388933 which means that 0.8388933 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.8338587 which means that 0.8338587 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. 
+
+``` {r full_life_expectancy_model_resid, warning = FALSE, echo = FALSE}
 lifeexp_fullfit_aug <- augment(lifeexp_fullfit$fit)
 
 ggplot(lifeexp_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
-
+  labs(title = "Life Expectancy Simple Linear Model Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
 ```
+This residual scatter plot is concerning because the points in the plot appear to be create a curvy shape and thus are not randomly and evenly distributed around 0. There is also some clustering of the residual points occurring around 82.5 years in predicted total life expectancy. 
 
+**Life Expectancy Quadratic Model**
 
-```{r sig_life_expectancy_model, warning = FALSE, echo = FALSE}
+Total Life Expectancy = 38.837594399 + 7.060190898[log(THE per capita in PPP dollars)] - 0.215246470[log(THE per capita in PPP dollars)]^2 - 0.131323652[GDP] - 0.083085644[Poverty headcount ratio] + 0.190683904[Educational attainment] - 0.002025324[Educational attainment]^2
+
+```{r sig_life_expectancy_model_table, include = FALSE}
 sig_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(`Total Life Expectancy` != '..') %>%
@@ -365,20 +380,31 @@ lifeexp_fit <- linear_reg() %>%
       ,data = sig_data_life_exp)
 
 tidy(lifeexp_fit, conf.int=TRUE)
+```
 
+```{r sig_life_expectancy_model_table_r2, include = FALSE}
 glance(lifeexp_fit)$r.squared
 glance(lifeexp_fit)$adj.r.squared
+```
 
+The R^2 for the life expectancy quadratic model is 0.8997453 which means that 0.8997453 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.896811 which means that 0.896811 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model. 
+
+```{r sig_life_expectancy_model_table_resid, warning = FALSE, echo = FALSE}
 lifeexp_fit_aug <- augment(lifeexp_fit$fit)
 
 ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
+  labs(title = "Life Expectancy Quadratic Model Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
 ```
 
+This residual scatter plot is an improvement from the linear model as the points no longer create as distinct of a curvy shape and thus are more randomly and evenly distributed around 0. The residual points also seem to be more tightly centered/closer to 0. However, there still appears to be clustering around 82.5 predicted years as well as around 77.5 predicted years.
 
-```{r mixed_life_expectancy_model, warning = FALSE, echo = FALSE}
+**Life Expectancy Quadratic Interaction Model**
+
+Total Life Expectancy = (Roni adds equation and interpretation here)
+
+```{r mixed_life_expectancy_model_table, include = FALSE}
 mixed_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
   filter(`Total Life Expectancy` != '..') %>%
@@ -414,19 +440,25 @@ lifeexp_mixedfit<- linear_reg() %>%
       ,data = mixed_data_life_exp)
 
 tidy(lifeexp_mixedfit, conf.int=TRUE)
+```
 
+```{r mixed_life_expectancy_model_r2, include = FALSE}
 glance(lifeexp_mixedfit)$r.squared
 glance(lifeexp_mixedfit)$adj.r.squared
+```
 
+The R^2 for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model and quadratic model. 
+
+```{r mixed_life_expectancy_model_resid, warning = FALSE, echo = FALSE}
 lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
 
 ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
-
+  labs(title = "Life Expectancy Quadratic Interaction Model Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")
 ```
 
+This residual scatter plot is an improvement from the quadratic model as the points are appear to less clustered and thus are more evenly distributed across the predicted years. However, the residual points seem to be less tightly centered/close to 0.
 
 ```{r full_mortality_model, warning = FALSE, echo = FALSE}
 
@@ -560,6 +592,11 @@ ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
   labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
 ```
+
+# Conclusions
+
+
+# Limitations
 
 
 # References
