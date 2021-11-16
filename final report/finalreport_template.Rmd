@@ -22,6 +22,8 @@ library(scales)
 #install.packages("grid")
 library(grid)
 library(gridExtra)
+#install.packages("kableExtra")
+library(kableExtra)
 knitr::opts_chunk$set(echo = FALSE)
 ``` 
 
@@ -312,9 +314,11 @@ In our models, we decided to explore two commonly used health outcome measures: 
 
 **Life Expectancy Simple Linear Model**
 
-Total Life Expectancy = 54.01077793 + 4.32153666[log(THE per capita in PPP dollars)] - 0.08676898[log(GDP)] - 0.07137130[GDP growth] - 0.23274026[Income share held by lowest 20%] - 0.10305518	[Poverty headcount ratio] - 0.04570412 [Educational attainment]
+Total Life Expectancy = 54.01077793 + 4.32153666\*log(THE per capita in PPP dollars) - 0.08676898\*log(GDP) - 0.07137130\*GDP growth - 0.23274026\*Income share held by lowest 20% - 0.10305518\*Poverty headcount ratio - 0.04570412\*Educational attainment
 
-```{r full_life_expectancy_model_table, include = FALSE}
+$\text{Total Life Expectancy} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{GDP}) + \beta_3*\text{GDP Growth} + \beta_4*\text{Income Share} + \beta_5*\text{Poverty} + \beta_6*\text{Education}$ 
+
+```{r full_life_expectancy_model_table, echo = FALSE}
 
 full_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
@@ -330,7 +334,13 @@ lifeexp_fullfit <- linear_reg() %>%
  set_engine("lm") %>%
 fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  log(`GDP (current US$)`) +`GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_life_exp)
 
-tidy(lifeexp_fullfit, conf.int=TRUE)
+result1 <- tidy(lifeexp_fullfit, conf.int=TRUE)
+vals1 <- c("$\beta_0$", "$\beta_1$", "$\beta_2$", "$\beta_3$", "$\beta_4$", "$\beta_5$", "$\beta_6$")
+result1$term <- vals1
+result1 <- result1[-c(3:4)]
+result1 %>% kbl(format = "rst",
+                col.names = c("Term", "Value", "p-value", "CI Lower", "CI Higher")) %>%
+  kable_classic(full_width = F, html_font = "helvetica")
 ```
 
 
@@ -339,7 +349,7 @@ glance(lifeexp_fullfit)$r.squared
 glance(lifeexp_fullfit)$adj.r.squared
 ```
 
-The R^2 for the life expectancy simple linear model is 0.8387499 which means that 0.8387499 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.8337108 which means that 0.8337108 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. 
+The R$^2$ for the life expectancy simple linear model is 0.8387499 which means that 0.8387499 of the variation in life expectancy is explained by the model. The adjusted R$^2$ for the life expectancy simple linear model is 0.8337108 which means that 0.8337108 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. 
 
 ``` {r full_life_expectancy_model_resid, warning = FALSE, echo = FALSE, fig.height = 3, fig.width = 5}
 lifeexp_fullfit_aug <- augment(lifeexp_fullfit$fit)
@@ -353,7 +363,7 @@ This residual scatter plot is concerning because the points in the plot appear t
 
 **Life Expectancy Quadratic Model**
 
-Total Life Expectancy = 38.837594399 + 7.060190898[log(THE per capita in PPP dollars)] - 0.215246470[log(THE per capita in PPP dollars)]^2 - 0.131323652[log(GDP)] - 0.083085644[Poverty headcount ratio] + 0.190683904[Educational attainment] - 0.002025324[Educational attainment]^2
+Total Life Expectancy = 38.837594399 + 7.060190898\*log(THE per capita in PPP dollars) - 0.215246470\*(log(THE per capita in PPP dollars))$^2$ - 0.131323652\*log(GDP) - 0.083085644\*Poverty headcount ratio + 0.190683904\*Educational attainment - 0.002025324\*Educational attainment$^2$
 
 ```{r sig_life_expectancy_model_table, include = FALSE}
 sig_data_life_exp <- full_data %>%
@@ -391,7 +401,7 @@ glance(lifeexp_fit)$r.squared
 glance(lifeexp_fit)$adj.r.squared
 ```
 
-The R^2 for the life expectancy quadratic model is 0.8997453 which means that 0.8997453 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy quadratic model is 0.896811 which means that 0.896811 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model. 
+The R$^2$ for the life expectancy quadratic model is 0.8997453 which means that 0.8997453 of the variation in life expectancy is explained by the model. The adjusted R$^2$ for the life expectancy quadratic model is 0.896811 which means that 0.896811 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R$^2$ of this quadratic model indicates that it is a better model than the simple linear model. 
 
 ```{r sig_life_expectancy_model_table_resid, warning = FALSE, echo = FALSE, fig.width = 5, fig.height = 3}
 lifeexp_fit_aug <- augment(lifeexp_fit$fit)
@@ -406,7 +416,7 @@ This residual scatter plot is an improvement from the linear model as the points
 
 **Life Expectancy Quadratic Interaction Model**
 
-Total Life Expectancy = 59.46 + -2.22[log(THE per capita in PPP dollars)] + 0.27[log(THE per capita in PPP dollars)]^2 + 0.46[log(GDP)] -0.18[poverty headcount ratio] + 0.46[educational attainment] -0.002[educational attainment]^2 -0.313[GDP growth] -0.00495[poverty headcount ratio * educational attainment] + 0.0059[educational attainment * GDP growth] -0.022[log(GDP) * poverty headcount ratio] -0.00597[log(GDP) * educational attainment] + 0.133[log(THE per capita in PPP dollars) * poverty headcount ratio]
+Total Life Expectancy = 59.46 - 2.22\*log(THE per capita in PPP dollars) + 0.27\*(log(THE per capita in PPP dollars))$^2$ + 0.46\*log(GDP) -0.18\*Poverty headcount ratio\* + 0.46\*Educational attainment - 0.002\*Educational attainment^2 -0.313\*GDP growth - 0.00495\*Poverty headcount ratio \* Educational attainment + 0.0059\*Educational attainment \* GDP growth - 0.022\*log(GDP) \* Poverty headcount ratio - 0.00597\*log(GDP) \* Educational attainment + 0.133\*log(THE per capita in PPP dollars) \* Poverty headcount ratio
 
 From this model, of the significant and interpretable coefficients, we see that for every percent of the population that has completed at least secondary education, we expect to see life expectancy to be higher by 0.46 on average.
 
@@ -453,7 +463,7 @@ glance(lifeexp_mixedfit)$r.squared
 glance(lifeexp_mixedfit)$adj.r.squared
 ```
 
-The R^2 for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy quadratic interaction model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
+The R$^2$ for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R$^2$ for the life expectancy quadratic interaction model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
 
 ```{r mixed_life_expectancy_model_resid, warning = FALSE, echo = FALSE, fig.height = 3, fig.width = 5}
 lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
@@ -468,7 +478,7 @@ This residual scatter plot is an improvement from the quadratic model as the poi
 
 **Mortality Rate Under the Age of 5 Simple Linear Model**
 
-log(Mortality Rate Under the Age of 5) = 4.629698850 - 0.584672973[log(THE per capita in PPP dollars)] + 0.072586447[log(GDP)] + 0.046301152[GDP growth] - 0.010565241[Income share held by lowest 20%] + 0.010933283[Poverty headcount ratio] - 0.007591069[Educational attainment]
+log(Mortality Rate Under the Age of 5) = 4.629698850 - 0.584672973\*log(THE per capita in PPP dollars) + 0.072586447\*log(GDP) + 0.046301152\*GDP growth - 0.010565241\*Income share held by lowest 20% + 0.010933283\*Poverty headcount ratio\* - 0.007591069\*Educational attainment
 
 ```{r full_mortality_model_table, include = FALSE}
 full_data_mortality <- full_data %>%
@@ -492,7 +502,7 @@ glance(mortality_fullfit)$r.squared
 glance(mortality_fullfit)$adj.r.squared
 ```
 
-The R^2 for the mortality rate under the age of 5 simple linear model is 0.8513467 which means that 0.8513467 of the variation in mortality rate is explained by the model. The adjusted R^2 for the mortality rate under the age of 5 simple linear model is 0.8467013 which means that 0.8467013 of the variation in mortality rate is explained by the model, adjusting for the number of variables included.
+The R$^2$ for the mortality rate under the age of 5 simple linear model is 0.8513467 which means that 0.8513467 of the variation in mortality rate is explained by the model. The adjusted R$^2$ for the mortality rate under the age of 5 simple linear model is 0.8467013 which means that 0.8467013 of the variation in mortality rate is explained by the model, adjusting for the number of variables included.
 
 ```{r full_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3, fig.width = 5}
 mortality_fullfit_aug <- augment(mortality_fullfit$fit)
@@ -507,7 +517,7 @@ This residual scatter plot is concerning because the points in the plot appear t
 
 **Mortality Rate Under the Age of 5 Quadratic Model**
 
-log(Mortality Rate Under the Age of 5) = 23.4435649786 - 2.5355361915[log(THE per capita in PPP dollars)] + 0.1360493432[log(THE per capita in PPP dollars)]^2 - 0.5448553694[log(GDP)] + 0.0115264717[log(GDP)]^2 - 0.7721845449[Income share] + 0.0459322976[Income share]^2 - 0.0002119304[Poverty headcount ratio]^2 - 0.0267254803[Educational attainment] + 0.0001907620[Educational attainment]^2
+log(Mortality Rate Under the Age of 5) = 23.4435649786 - 2.5355361915\*log(THE per capita in PPP dollars) + 0.1360493432\*(log(THE per capita in PPP dollars))$^2$ - 0.5448553694\*log(GDP)\* + 0.0115264717\*(log(GDP)\*$^2$ - 0.7721845449\*Income share + 0.0459322976\*Income share$^2$ - 0.0002119304\*Poverty headcount ratio$^2$ - 0.0267254803\*Educational attainment + 0.0001907620\*Educational attainment$^2$
 
 ```{r sig_mortality_model_table, include = FALSE}
 sig_data_mortality <- full_data %>%
@@ -552,7 +562,7 @@ glance(mortality_fit)$r.squared
 glance(mortality_fit)$adj.r.squared
 ```
 
-The R^2 for the mortality rate under the age of 5 quadratic model is 0.8789936 which means that 0.8789936 of the variation in mortality rate is explained by the model. The adjusted R^2 for the mortality rate under the age of 5 quadratic model is 0.8732314 which means that 0.8732314 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model. 
+The R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8789936 which means that 0.8789936 of the variation in mortality rate is explained by the model. The adjusted R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8732314 which means that 0.8732314 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R$^2$ of this quadratic model indicates that it is a better model than the simple linear model. 
 
 ```{r sig_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3, fig.width = 5}
 mortality_fit_aug <- augment(mortality_fit$fit)
@@ -567,7 +577,7 @@ This residual scatter plot is a slight improvement from the linear model as the 
 
 **Mortality Rate Under the Age of 5 Quadratic Interaction Model**
 
-log(Mortality Rate Under the Age of 5) = 24.2 + -0.17[log(THE per capita in PPP dollars)] + 0.12[log(THE per capita in PPP dollars)]^2 - 1.3[log(GDP)] + 0.0041[log(GDP)]^2 - 0.16[income share] + 0.0069[income share]^2 + 0.00052[poverty head count ratio]^2 -0.113[educational attainment] + 0.000328[educational attainment]^2 -0.0796[poverty head count ratio] -.0019[income share * educational attainment] -0.079[log(THE per capita in PPP dollars) * log(GDP)] + 0.0034[log(GDP) * educational attainment] -0.0415[log(GDP) * income share] + 0.0073[income share * poverty head count ratio]
+log(Mortality Rate Under the Age of 5) = 24.2 - 0.17\*log(THE per capita in PPP dollars) + 0.12\*(log(THE per capita in PPP dollars))$^2$ - 1.3\*log(GDP) + 0.0041\*(log(GDP))$^2$ - 0.16\*Income share + 0.0069\*Income share$^2$ + 0.00052\*Poverty head count ratio$^2$ - 0.113\*Educational attainment + 0.000328\*Educational attainment$^2$ - 0.0796\*Poverty head count ratio - 0.0019\* Income share \* Educational attainment - 0.079\*log(THE per capita in PPP dollars) \* log(GDP) + 0.0034\*log(GDP) \* Educational attainment -0.0415\*log(GDP) \* Income share + 0.0073\*Income share \* Poverty head count ratio
 
 For this model, of the significant and interpretable coefficients, as the percent of the population with post-secondary education increased by 1 percent, we would expect the mortaly rate under the age of 5 to decrease by 0.11, on average. In addition to that, as poverty head count ratio increases by one, we expect the mortality rate under the age of 5 to decrease by 0.0796. 
 
@@ -624,7 +634,7 @@ glance(mortality_mixedfit)$r.squared
 glance(mortality_mixedfit)$adj.r.squared
 ```
 
-The R^2 for the mortality rate under the age of 5 quadratic interaction model is 0.9123402 which means that 0.9123402 of the variation in mortality rate is explained by the model. The adjusted R^2 for the mortality rate under the age of 5 quadratic interaction model is 0.9035743 which means that 0.9035743 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
+The R$^2$ for the mortality rate under the age of 5 quadratic interaction model is 0.9123402 which means that 0.9123402 of the variation in mortality rate is explained by the model. The adjusted R$^2$ for the mortality rate under the age of 5 quadratic interaction model is 0.9035743 which means that 0.9035743 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R$^2$ of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
 
 ```{r mixed_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3, fig.width = 5}
 mortality_mixedfit_aug <- augment(mortality_mixedfit$fit)
