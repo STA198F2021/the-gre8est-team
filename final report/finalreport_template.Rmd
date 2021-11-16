@@ -130,8 +130,10 @@ p_log_mort <- full_data %>%
     y = "Frequency",
     title = "Distribution of Mortality Rate"
   )
-grid.arrange(grobs = list(p_lifeexp, p_log_mort), ncol = 2)
+grid.arrange(grobs = list(p_lifeexp, p_log_mort), ncol = 2, top = "Outcome Variable Distributions")
 ```
+
+We then created visualizations of the predictor variables. Most were evenly distributed and generally resembled a normal distribution. However, THE and GDP were heavily skewed right. We found that applying a log transformation to both variables improved the results of our model.
 
 ```{r healtcarespendinghisto, warning = FALSE, echo=FALSE, fig.height = 4}
 p_the <- full_data %>%
@@ -216,7 +218,7 @@ p_edu <- ggplot(data = full_data, aes(full_data$`Educational attainment, at leas
         axis.title.x = element_text(size = 8),
         axis.title.y = element_text(size = 8))
 
-grid.arrange(grobs = list(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu), ncol = 3)
+grid.arrange(grobs = list(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu), ncol = 3, top = "Predictor Variable Distributions")
 ```
 
 Then, we looked at healthcare spending over time in a few selected countries to see any trends in the data:
