@@ -302,7 +302,7 @@ There is a clear positive linear relationship between healthcare spending and li
 
 # Modeling
 
-In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R^2, and a quadratic model with interaction effects using only the covariates that increased adjusted R^2. Adjusted R^2 and residual plots were used for assessing and selecting models. 
+In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R$^2$, and a quadratic model with interaction effects using only the covariates that increased adjusted R$^2$. We decided to utilize these 3 models to characterize linear, quadratic, and quadratic interaction relationships between the covariates and the health outcome variable (life expectancy and mortality rate under the age of 5). Adjusted R$^2$ and residual plots were used for assess each of these models and the quadratic interaction models for both health outcomes were eventually found to be the best fit.
 
 **Life Expectancy Simple Linear Model**
 
@@ -732,7 +732,7 @@ One limitation in our models is that although some of the interaction terms and 
  
  [4] "Under-Five Mortality Rate (Probability of Dying by Age 5 Per 1000 Live Births)." Indicator Metadata Registry List. World Health Organization https://www.who.int/data/gho/indicator-metadata-registry/imr-details/7.
  
- [5] [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021. \
+ [5] [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021.
  
  [6] World Bank. World Development Indicators, The World Bank Group, 2021,
 https://databank.worldbank.org/source/world-development-indicators
