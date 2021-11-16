@@ -99,17 +99,10 @@ This analysis aims to determine the significance of relationships between a set 
 # Data
 We are combining health spending data from the Global Health Data Exchange [5] and world economic/health-related data from the World Bank [6], ranging from 1990-2020. For these data sets, we will be analyzing data from the 204 countries and territories that are included in both databases. The health spending data was collected from a wide variety of sources that included program reports, budget data, national estimates, and National Health Accounts (NHAs). The variables that we are most concerned with are location ID, location name, year, and total health expenditure (THE) per capita in purchasing power parity (PPP) dollars (2020 USD). Purchasing power parity accounts for the differences in economic and standards of living between countries. The World Bank collects data through various sources, mostly through national statistical systems of member countries. The variables that we are most concerned with are country or area, total life expectancy at birth (years), male life expectancy at birth (years), female life expectancy at birth (years), GDP (current US dollars), GDP growth (annual %), income share held by lowest 20%, mortality rate under 5 (per 1,000 live births), poverty headcount ratio at national poverty lines (% of population), and educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative) [6].
 
-# Descriptive Stats
-Following the data-cleaning, we ran some descriptive statistics to visualize the data. The first thing we noticed was that healthcare spending variation was extremely large across countries. To standardize the numbers across countries, we attempted to look at just the healthcare spending per person, but even that yielded huge variation across countries:
+# Data Wrangling and Transformations
+The two data sets were modified such that the observations could be merged by country name and year. No observations were removed at this stage for missing data. Additionally, many of the measures included in the Global Health Data Exchange data set were not used but were not removed in case future analysis involved those measures. \
 
-```{r healthcarespenindsummarystat, warning = FALSE, echo = FALSE}
-full_data %>%
-  select(the_per_cap_ppp_mean) %>%
-  filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
-  summary(the_per_cap_ppp_mean)
-```
-As you can see, the quartiles have enormous range between them. To standardize and reduce variation further, we took the log of the spending per person, and got an approximately normal distribution of healthcare spending across countries. We followed the same procedure to normalize mortality rate, healthcare spending, and GDP. We did so to satisfy any future assumptions given our relatively small sample size. The approximately normal distributions are shown below:
-
+Since the analysis plan involved regression models, we looked at the distribution of our outcome variables, life expectancy and under-5 mortality rate. The life expectancy data looked approximately normal. However, the mortality rate data was log-transformed to produce a more normal distribution:
 ```{r outcome-histo, warning = FALSE, echo=FALSE, fig.height = 2}
 p_lifeexp <- full_data %>%
   ggplot(aes(full_data$'Total Life Expectancy')) + 
@@ -119,24 +112,6 @@ p_lifeexp <- full_data %>%
     y = "Frequency",
     title = "Distribution of Life Expectancy"
   ) 
-
-p_fert <- full_data %>%
-  ggplot(aes(full_data$'Fertility rate, total (births per woman)')) + 
-  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
-  labs(
-    x = "Fertility Rate (Births per Woman)",
-    y = "Frequency",
-    title = "Distribution of Fertility Rate"
-  ) 
-
-p_log_fert <- full_data %>%
-  ggplot(aes((log(full_data$'Fertility rate, total (births per woman)')))) + 
-  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
-  labs(
-    x = "Fertility Rate (Log of Births per Woman)",
-    y = "Frequency",
-    title = "Fertility Rate"
-  )
 
 p_mort <- full_data %>%
   ggplot(aes(full_data$`Mortality rate, under-5 (per 1,000 live births)`)) + 
@@ -323,7 +298,7 @@ labs( x= "Log of Mean THE per Capita (in PPP dollars)", y = "Mortality Rates Und
 ```
 There is a clear positive linear relationship between healthcare spending and life expectancy but a more exponential-decay trend in healthcare spending and mortality rates under 5. Viewing these trends would come in helpful when modelling. Within the descriptive statistics portion of our project, we also explored healthcare spending by GDP, distributions of mortality rates, life expectancies, and fertility rates, male vs. female life expectancy distributions, and line graphs of health outcomes over time. However, the most significant graphs and visualizations are included above as these helped the most in understanding our data set and fitting the proper models. In addition to this, some outcomes such as fertility rates were excluded after data visualization due the missingness in that variable being to great to deal with. 
 
-# Modelling
+# Modeling
 
 In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R^2, and a quadratic model with interaction effects using only the covariates that increased adjusted R^2. Adjusted R^2 and residual plots were used for assessing and selecting models. 
 
@@ -351,15 +326,15 @@ fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  log(`GDP (current US$
 ``` {r table1}
 result1 <- tidy(lifeexp_fullfit, conf.int=TRUE)
 vals1 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$")
-result1$term <- vals1
-result1 <- result1[-c(3:4)]
+result1 <- result1[-c(1, 3:4)]
 result1 <- t(result1)
-rownames(result1) <- c("Term", "Value", "p-value", "CI Lower", "CI Higher")
-result1 %>% kable(row.names = ,
-                  escape = FALSE,
-                  digits = 6) %>%
+colnames(result1) <- vals1
+rownames(result1) <- c("Value", "p-value", "CI Lower", "CI Higher")
+result1 %>% kable(escape = FALSE,
+                  digits = 4) %>%
   kable_classic(full_width = F, html_font = "helvetica") %>%
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "hold_position",
+                font_size = 12)
 ```
 
 ``` {r full_life_expectancy_model_r2, include = FALSE}
@@ -381,8 +356,6 @@ ggplot(lifeexp_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 This residual scatter plot is concerning because the points in the plot appear to decrease for higher predicted life expectancies and thus are not randomly and evenly distributed around 0. There is also some clustering of the residual points occurring around 82.5 years in predicted total life expectancy. 
 
 **Life Expectancy Quadratic Model**
-
-Total Life Expectancy = 38.837594399 + 7.060190898\*log(THE per capita in PPP dollars) - 0.215246470\*(log(THE per capita in PPP dollars))$^2$ - 0.131323652\*log(GDP) - 0.083085644\*Poverty headcount ratio + 0.190683904\*Educational attainment - 0.002025324\*Educational attainment$^2$
 
 $\text{Total Life Expectancy} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \beta_5*\text{Education} + \beta_6*\text{Education}^2$ 
 
@@ -418,14 +391,15 @@ lifeexp_fit <- linear_reg() %>%
 ``` {r table2}
 result2 <- tidy(lifeexp_fit, conf.int=TRUE)
 vals2 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$")
-result2$term <- vals2
-result2 <- result2[-c(3:4)]
+result2 <- result2[-c(1, 3:4)]
 result2 <- t(result2)
-rownames(result2) <- c("Term", "Value", "p-value", "CI Lower", "CI Higher")
+colnames(result2) <- vals2
+rownames(result2) <- c("Value", "p-value", "CI Lower", "CI Higher")
 result2 %>% kable(escape = FALSE,
-                  digits = 6) %>%
+                  digits = 4) %>%
   kable_classic(full_width = F, html_font = "helvetica") %>%
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "hold_position",
+                font_size = 12)
 ```
 
 ```{r sig_life_expectancy_model_table_r2, include = FALSE}
@@ -449,11 +423,7 @@ This residual scatter plot is an improvement from the linear model as the points
 
 **Life Expectancy Quadratic Interaction Model**
 
-Total Life Expectancy = 59.46 - 2.22\*log(THE per capita in PPP dollars) + 0.27\*(log(THE per capita in PPP dollars))$^2$ + 0.46\*log(GDP) -0.18\*Poverty headcount ratio\* + 0.46\*Educational attainment - 0.002\*Educational attainment^2 -0.313\*GDP growth - 0.00495\*Poverty headcount ratio \* Educational attainment + 0.0059\*Educational attainment \* GDP growth - 0.022\*log(GDP) \* Poverty headcount ratio - 0.00597\*log(GDP) \* Educational attainment + 0.133\*log(THE per capita in PPP dollars) \* Poverty headcount ratio
-
 $\text{Total Life Expectancy} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \beta_5*\text{Education} + \beta_6*\text{Education}^2 + \beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*\text{GDP} + \beta_{11}*\text{GDP}*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}$ 
-
-From this model, of the significant and interpretable coefficients, we see that for every percent of the population that has completed at least secondary education, we expect to see life expectancy to be higher by 0.46 on average.
 
 ```{r mixed_life_expectancy_model_table, include = FALSE}
 mixed_data_life_exp <- full_data %>%
@@ -496,14 +466,18 @@ tidy(lifeexp_mixedfit, conf.int=TRUE)
 ``` {r table3}
 result3 <- tidy(lifeexp_mixedfit, conf.int=TRUE)
 vals3 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$", "$\\beta_7$", "$\\beta_8$", "$\\beta_9$", "$\\beta_{10}$", "$\\beta_{11}$", "$\\beta_{12}$")
-result3$term <- vals3
-result3 <- result3[-c(3:4)]
-result3 %>% kable(col.names = c("Term", "Value", "p-value", "CI Lower", "CI Higher"),
-                  escape = FALSE,
-                  digits = 6) %>%
+result3 <- result3[-c(1, 3:4)]
+result3 <- t(result3)
+colnames(result3) <- vals3
+rownames(result3) <- c("Value", "p-value", "CI Lower", "CI Higher")
+result3 %>% kable(escape = FALSE,
+                  digits = 4) %>%
   kable_classic(full_width = F, html_font = "helvetica") %>%
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = c("hold_position","scale_down"),
+                font_size = 8)
 ```
+
+From this model, of the significant and interpretable coefficients, we see that for every percent of the population that has completed at least secondary education, we expect to see life expectancy to be higher by 0.46 on average.
 
 ```{r mixed_life_expectancy_model_r2, include = FALSE}
 glance(lifeexp_mixedfit)$r.squared
@@ -525,8 +499,6 @@ ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 This residual scatter plot is an improvement from the quadratic model as the points are appear to less clustered and thus are more evenly distributed across the predicted years. However, the residual points seem to be less tightly centered/close to 0.
 
 **Mortality Rate Under the Age of 5 Simple Linear Model**
-
-log(Mortality Rate Under the Age of 5) = 4.629698850 - 0.584672973\*log(THE per capita in PPP dollars) + 0.072586447\*log(GDP) + 0.046301152\*GDP growth - 0.010565241\*Income share held by lowest 20% + 0.010933283\*Poverty headcount ratio\* - 0.007591069\*Educational attainment
 
 $log(\text{Under-5 Mortality} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{GDP}) + \beta_3*\text{GDP Growth} + \beta_4*\text{Income Share} + \beta_5*\text{Poverty} + \beta_6*\text{Education}$ 
 
@@ -550,13 +522,15 @@ tidy(mortality_fullfit, conf.int=TRUE)
 ``` {r table4}
 result4 <- tidy(mortality_fullfit, conf.int=TRUE)
 vals4 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$")
-result4$term <- vals4
-result4 <- result4[-c(3:4)]
-result4 %>% kable(col.names = c("Term", "Value", "p-value", "CI Lower", "CI Higher"),
-                  escape = FALSE,
-                  digits = 6) %>%
+result4 <- result4[-c(1, 3:4)]
+result4 <- t(result4)
+colnames(result4) <- vals4
+rownames(result4) <- c("Value", "p-value", "CI Lower", "CI Higher")
+result4 %>% kable(escape = FALSE,
+                  digits = 4) %>%
   kable_classic(full_width = F, html_font = "helvetica") %>%
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "hold_position",
+                font_size = 12)
 ```
 
 ```{r full_mortality_model_r2, include = FALSE}
@@ -580,9 +554,7 @@ This residual scatter plot is satisfactory because the points in the plot appear
 
 **Mortality Rate Under the Age of 5 Quadratic Model**
 
-log(Mortality Rate Under the Age of 5) = 23.4435649786 - 2.5355361915\*log(THE per capita in PPP dollars) + 0.1360493432\*(log(THE per capita in PPP dollars))$^2$ - 0.5448553694\*log(GDP)\* + 0.0115264717\*(log(GDP)\*$^2$ - 0.7721845449\*Income share + 0.0459322976\*Income share$^2$ - 0.0002119304\*Poverty headcount ratio$^2$ - 0.0267254803\*Educational attainment + 0.0001907620\*Educational attainment$^2$
-
-$log(\text{Under-5 Mortality} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income share} + \beta_6*\text{Income share}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2$
+$log(\text{Under-5 Mortality}) = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income share} + \beta_6*\text{Income share}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2$
 
 ```{r sig_mortality_model_table, include = FALSE}
 sig_data_mortality <- full_data %>%
@@ -625,13 +597,16 @@ tidy(mortality_fit, conf.int=TRUE)
 ``` {r table5}
 result5 <- tidy(mortality_fit, conf.int=TRUE)
 vals5 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$", "$\\beta_7$", "$\\beta_8$", "$\\beta_9$")
-result5$term <- vals5
-result5 <- result5[-c(3:4)]
-result5 %>% kable(col.names = c("Term", "Value", "p-value", "CI Lower", "CI Higher"),
-                  escape = FALSE,
-                  digits = 6) %>%
-  kable_classic(full_width = F, html_font = "helvetica") %>%
-  kable_styling(latex_options = "hold_position")
+result5 <- result5[-c(1, 3:4)]
+result5 <- t(result5)
+colnames(result5) <- vals5
+rownames(result5) <- c("Value", "p-value", "CI Lower", "CI Higher")
+result5 %>% kable(escape = FALSE,
+                  digits = 4) %>%
+  kable_styling(latex_options = "hold_position",
+                font_size = 9) %>%
+  kable_classic(full_width = F, html_font = "helvetica")
+
 ```
 
 ```{r sig_mortality_model_r2, include = FALSE}
@@ -655,9 +630,7 @@ This residual scatter plot is slightly worse than that for the linear model. The
 
 **Mortality Rate Under the Age of 5 Quadratic Interaction Model**
 
-log(Mortality Rate Under the Age of 5) = 24.2 - 0.17\*log(THE per capita in PPP dollars) + 0.12\*(log(THE per capita in PPP dollars))$^2$ - 1.3\*log(GDP) + 0.0041\*(log(GDP))$^2$ - 0.16\*Income share + 0.0069\*Income share$^2$ + 0.00052\*Poverty head count ratio$^2$ - 0.113\*Educational attainment + 0.000328\*Educational attainment$^2$ - 0.0796\*Poverty head count ratio - 0.0019\* Income share \* Educational attainment - 0.079\*log(THE per capita in PPP dollars) \* log(GDP) + 0.0034\*log(GDP) \* Educational attainment -0.0415\*log(GDP) \* Income share + 0.0073\*Income share \* Poverty head count ratio
-
-$log\text{Under-5 Mortality} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income} + \beta_6*\text{Income}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
+$log(\text{Under-5 Mortality}) = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income} + \beta_6*\text{Income}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
 
 For this model, of the significant and interpretable coefficients, as the percent of the population with post-secondary education increased by 1 percent, we would expect the mortaly rate under the age of 5 to decrease by 0.11, on average. In addition to that, as poverty head count ratio increases by one, we expect the mortality rate under the age of 5 to decrease by 0.0796. 
 
@@ -711,13 +684,16 @@ tidy(mortality_mixedfit, conf.int=TRUE)
 ``` {r table6}
 result6 <- tidy(mortality_mixedfit, conf.int=TRUE)
 vals6 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$", "$\\beta_7$", "$\\beta_8$", "$\\beta_9$", "$\\beta_{10}$", "$\\beta_{11}$", "$\\beta_{12}$", "$\\beta_{13}$", "$\\beta_{14}$", "$\\beta_{15}$", "$\\beta_{16}$", "$\\beta_{17}$", "$\\beta_{18}$")
-result6$term <- vals6
-result6 <- result6[-c(3:4)]
-result6 %>% kable(col.names = c("Term", "Value", "p-value", "CI Lower", "CI Higher"),
-                  escape = FALSE,
-                  digits = 6) %>%
-  kable_classic(full_width = F, html_font = "helvetica") %>%
-  kable_styling(latex_options = "hold_position")
+result6 <- result6[-c(1, 3:4)]
+result6 <- t(result6)
+colnames(result6) <- vals6
+rownames(result6) <- c("Value", "p-value", "CI Lower", "CI Higher")
+knitr::kable(result6,
+             escape = FALSE,
+             digits = 3) %>%
+  kable_styling(latex_options = c("hold_position","scale_down"),
+                font_size = 8) %>%
+  kable_classic(html_font = "helvetica")
 ```
 
 ```{r mixed_mortality_model_r2, include = FALSE}
