@@ -420,8 +420,9 @@ result2 <- tidy(lifeexp_fit, conf.int=TRUE)
 vals2 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$")
 result2$term <- vals2
 result2 <- result2[-c(3:4)]
-result2 %>% kable(col.names = c("Term", "Value", "p-value", "CI Lower", "CI Higher"),
-                  escape = FALSE,
+result2 <- t(result2)
+rownames(result2) <- c("Term", "Value", "p-value", "CI Lower", "CI Higher")
+result2 %>% kable(escape = FALSE,
                   digits = 6) %>%
   kable_classic(full_width = F, html_font = "helvetica") %>%
   kable_styling(latex_options = "hold_position")
