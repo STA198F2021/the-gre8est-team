@@ -304,11 +304,11 @@ There is a clear positive linear relationship between healthcare spending and li
 
 # Modelling
 
-In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R^2, and a quadratic model with interaction effects using only the covariates that increased adjusted R^2. Adjusted R^2 and residual plots were used for assessing and selecting models. 
+In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R^2, and a quadratic model with interaction effects using only the covariates that increased adjusted R^2. Adjusted R^2 and residual plots were used for assessing and selecting models. 
 
 **Life Expectancy Simple Linear Model**
 
-Total Life Expectancy = 5.172657e+01 + 4.323399[log(THE per capita in PPP dollars)] - 1.832415e-13[GDP] - 7.155914e-02[GDP growth] - 2.228937e-01[Income share held by lowest 20%] - 9.971395e-02[Poverty headcount ratio] - 4.586646e-02[Educational attainment]
+Total Life Expectancy = 54.01077793 + 4.32153666[log(THE per capita in PPP dollars)] - 0.08676898[log(GDP)] - 0.07137130[GDP growth] - 0.23274026[Income share held by lowest 20%] - 0.10305518	[Poverty headcount ratio] - 0.04570412 [Educational attainment]
 
 ```{r full_life_expectancy_model_table, include = FALSE}
 
@@ -324,7 +324,7 @@ full_data_life_exp <- full_data %>%
 
 lifeexp_fullfit <- linear_reg() %>%
  set_engine("lm") %>%
-fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  `GDP (current US$)` +`GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_life_exp)
+fit(`Total Life Expectancy` ~ log(the_per_cap_ppp_mean) +  log(`GDP (current US$)`) +`GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_life_exp)
 
 tidy(lifeexp_fullfit, conf.int=TRUE)
 ```
@@ -335,7 +335,7 @@ glance(lifeexp_fullfit)$r.squared
 glance(lifeexp_fullfit)$adj.r.squared
 ```
 
-The R^2 for the life expectancy simple linear model is 0.8388933 which means that 0.8388933 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.8338587 which means that 0.8338587 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. 
+The R^2 for the life expectancy simple linear model is 0.8387499 which means that 0.8387499 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.8337108 which means that 0.8337108 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. 
 
 ``` {r full_life_expectancy_model_resid, warning = FALSE, echo = FALSE}
 lifeexp_fullfit_aug <- augment(lifeexp_fullfit$fit)
@@ -349,7 +349,7 @@ This residual scatter plot is concerning because the points in the plot appear t
 
 **Life Expectancy Quadratic Model**
 
-Total Life Expectancy = 38.837594399 + 7.060190898[log(THE per capita in PPP dollars)] - 0.215246470[log(THE per capita in PPP dollars)]^2 - 0.131323652[GDP] - 0.083085644[Poverty headcount ratio] + 0.190683904[Educational attainment] - 0.002025324[Educational attainment]^2
+Total Life Expectancy = 38.837594399 + 7.060190898[log(THE per capita in PPP dollars)] - 0.215246470[log(THE per capita in PPP dollars)]^2 - 0.131323652[log(GDP)] - 0.083085644[Poverty headcount ratio] + 0.190683904[Educational attainment] - 0.002025324[Educational attainment]^2
 
 ```{r sig_life_expectancy_model_table, include = FALSE}
 sig_data_life_exp <- full_data %>%
@@ -387,7 +387,7 @@ glance(lifeexp_fit)$r.squared
 glance(lifeexp_fit)$adj.r.squared
 ```
 
-The R^2 for the life expectancy quadratic model is 0.8997453 which means that 0.8997453 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.896811 which means that 0.896811 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model. 
+The R^2 for the life expectancy quadratic model is 0.8997453 which means that 0.8997453 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy quadratic model is 0.896811 which means that 0.896811 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model. 
 
 ```{r sig_life_expectancy_model_table_resid, warning = FALSE, echo = FALSE}
 lifeexp_fit_aug <- augment(lifeexp_fit$fit)
@@ -447,7 +447,7 @@ glance(lifeexp_mixedfit)$r.squared
 glance(lifeexp_mixedfit)$adj.r.squared
 ```
 
-The R^2 for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy simple linear model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model and quadratic model. 
+The R^2 for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy quadratic interaction model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
 
 ```{r mixed_life_expectancy_model_resid, warning = FALSE, echo = FALSE}
 lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
@@ -460,8 +460,11 @@ ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 
 This residual scatter plot is an improvement from the quadratic model as the points are appear to less clustered and thus are more evenly distributed across the predicted years. However, the residual points seem to be less tightly centered/close to 0.
 
-```{r full_mortality_model, warning = FALSE, echo = FALSE}
+**Mortality Rate Under the Age of 5 Simple Linear Model**
 
+log(Mortality Rate Under the Age of 5) = 4.629698850 - 0.584672973[log(THE per capita in PPP dollars)] + 0.072586447[log(GDP)] + 0.046301152[GDP growth] - 0.010565241[Income share held by lowest 20%] + 0.010933283[Poverty headcount ratio] - 0.007591069[Educational attainment]
+
+```{r full_mortality_model_table, include = FALSE}
 full_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
@@ -473,23 +476,34 @@ full_data_mortality <- full_data %>%
   
 mortality_fullfit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(`Mortality rate, under-5 (per 1,000 live births)` ~ log(the_per_cap_ppp_mean) + `GDP (current US$)` + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_mortality)
+  fit(log(`Mortality rate, under-5 (per 1,000 live births)`) ~ log(the_per_cap_ppp_mean) + log(`GDP (current US$)`) + `GDP growth (annual %)` + `Income share held by lowest 20%` + `Poverty headcount ratio at national poverty lines (% of population)` + `Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`, data = full_data_mortality)
 
 tidy(mortality_fullfit, conf.int=TRUE)
+```
 
+```{r full_mortality_model_r2, include = FALSE}
 glance(mortality_fullfit)$r.squared
 glance(mortality_fullfit)$adj.r.squared
+```
 
+The R^2 for the mortality rate under the age of 5 simple linear model is 0.8513467 which means that 0.8513467 of the variation in mortality rate is explained by the model. The adjusted R^2 for the mortality rate under the age of 5 simple linear model is 0.8467013 which means that 0.8467013 of the variation in mortality rate is explained by the model, adjusting for the number of variables included.
+
+```{r full_mortality_model_resid, warning = FALSE, echo = FALSE}
 mortality_fullfit_aug <- augment(mortality_fullfit$fit)
 
 ggplot(mortality_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
-
+  labs(title = "Mortality Rate Under the Age of 5 Simple Linear Model Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
 ```
 
-```{r sig_mortality_model, warning = FALSE, echo = FALSE}
+This residual scatter plot is concerning because the points in the plot appear to be create a curvy shape and thus are not randomly and evenly distributed around 0. There is also some clustering of the residual points occurring around 82.5 years in predicted total life expectancy.
+
+**Mortality Rate Under the Age of 5 Quadratic Model**
+
+log(Mortality Rate Under the Age of 5) = 23.4435649786 - 2.5355361915[log(THE per capita in PPP dollars)] + 0.1360493432[log(THE per capita in PPP dollars)]^2 - 0.5448553694[log(GDP)] + 0.0115264717[log(GDP)]^2 - 0.7721845449[Income share] + 0.0459322976[Income share]^2 - 0.0002119304[Poverty headcount ratio]^2 - 0.0267254803[Educational attainment] + 0.0001907620[Educational attainment]^2
+
+```{r sig_mortality_model_table, include = FALSE}
 sig_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
@@ -523,20 +537,33 @@ mortality_fit <- linear_reg() %>%
       + education
       + education2
       ,data = sig_data_mortality)
-tidy(mortality_fit, conf.int=TRUE)
 
+tidy(mortality_fit, conf.int=TRUE)
+```
+
+```{r sig_mortality_model_r2, include = FALSE}
 glance(mortality_fit)$r.squared
 glance(mortality_fit)$adj.r.squared
+```
 
+The R^2 for the mortality rate under the age of 5 quadratic model is 0.8789936 which means that 0.8789936 of the variation in mortality rate is explained by the model. The adjusted R^2 for the mortality rate under the age of 5 quadratic model is 0.8732314 which means that 0.8732314 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic model indicates that it is a better model than the simple linear model. 
+
+```{r sig_mortality_model_resid, warning = FALSE, echo = FALSE}
 mortality_fit_aug <- augment(mortality_fit$fit)
 
 ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
+  labs(title = "Mortality Rate Under the Age of 5 Quadratic Model Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
 ```
 
-```{r mixed_mortality_model, warning = FALSE, echo = FALSE}
+This residual scatter plot is an improvement from the linear model as the points no longer create as distinct of a curvy shape and thus are more randomly and evenly distributed around 0. The residual points also seem to be more tightly centered/closer to 0. However, there still appears to be clustering around 82.5 predicted years as well as around 77.5 predicted years.
+
+**Mortality Rate Under the Age of 5 Quadratic Interaction Model**
+
+log(Mortality Rate Under the Age of 5) = (Roni adds equation and interpretation here)
+
+```{r mixed_mortality_model_table, include = FALSE}
 mixed_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
   filter(is.na(the_per_cap_ppp_mean) == FALSE) %>%
@@ -581,17 +608,26 @@ mortality_mixedfit <- linear_reg() %>%
       ,data = mixed_data_mortality)
 
 tidy(mortality_mixedfit, conf.int=TRUE)
+```
 
+
+```{r mixed_mortality_model_r2, include = FALSE}
 glance(mortality_mixedfit)$r.squared
 glance(mortality_mixedfit)$adj.r.squared
+```
 
+The R^2 for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R^2 for the life expectancy quadratic interaction model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
+
+```{r mixed_mortality_model_resid, warning = FALSE, echo = FALSE}
 mortality_mixedfit_aug <- augment(mortality_mixedfit$fit)
 
 ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
+  labs(title = "Mortality Rate Under the Age of 5 Quadratic Interaction Model Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")
 ```
+
+This residual scatter plot is an improvement from the quadratic model as the points are appear to less clustered and thus are more evenly distributed across the predicted years. However, the residual points seem to be less tightly centered/close to 0.
 
 # Conclusions
 
