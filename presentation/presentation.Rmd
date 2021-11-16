@@ -1,7 +1,7 @@
 ---
-title: "Presentation title"
-subtitle: "Presentation subtitle (if any)"
-author: "Team name <br> Names of team members"
+title: "Worldwide Health Outcomes"
+subtitle: "Explaining variation in health measures around the world"
+author: "the-gr8est-team <br> Roni O., Judy Z, Matthew W."
 institute: "Duke University"
 date: "`r Sys.Date()`"
 output:
@@ -23,6 +23,18 @@ library(tidymodels)
 library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
+library(infer)
+library(ggplot2)
+library(sf)
+#install.packages("rnaturalearth")
+library(rnaturalearth)
+#install.packages("rnaturalearthdata")
+library(rnaturalearthdata)
+library(rgeos)
+library(scales)
+#install.packages("grid")
+library(grid)
+library(gridExtra)
 ```
 
 ```{r setup, include=FALSE}
@@ -48,9 +60,167 @@ style_xaringan(
 
 class: inverse, middle, center
 
-# Using xaringan
+## Background
 
 ---
+
+## Research Question
+
+---
+
+## Data Overview
+
+---
+
+## Summary Stats
+```{r outcome-histo, warning = FALSE, echo=FALSE, fig.height = 2}
+p_lifeexp <- full_data %>%
+  ggplot(aes(full_data$'Total Life Expectancy')) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Life Expectancy (Years)",
+    y = "Frequency",
+    title = "Distribution of Life Expectancy"
+  ) 
+
+p_fert <- full_data %>%
+  ggplot(aes(full_data$'Fertility rate, total (births per woman)')) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Fertility Rate (Births per Woman)",
+    y = "Frequency",
+    title = "Distribution of Fertility Rate"
+  ) 
+
+p_log_fert <- full_data %>%
+  ggplot(aes((log(full_data$'Fertility rate, total (births per woman)')))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Fertility Rate (Log of Births per Woman)",
+    y = "Frequency",
+    title = "Fertility Rate"
+  )
+
+p_mort <- full_data %>%
+  ggplot(aes(full_data$`Mortality rate, under-5 (per 1,000 live births)`)) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Mortality Rate (per 1,000 Live Births)",
+    y = "Frequency",
+    title = "Mortality Rate"
+  )
+
+p_log_mort <- full_data %>%
+  ggplot(aes(log(full_data$`Mortality rate, under-5 (per 1,000 live births)`))) + 
+  geom_histogram(fill = "aquamarine", na.rm = TRUE, bins = 50) + 
+  labs(
+    x = "Mortality Rate (Log per 1,000 Live Births)",
+    y = "Frequency",
+    title = "Distribution of Mortality Rate"
+  )
+grid.arrange(grobs = list(p_lifeexp, p_log_mort), ncol = 2)
+```
+
+```{r healtcarespendinghisto, warning = FALSE, echo=FALSE, fig.height = 4}
+p_the <- full_data %>%
+  ggplot(aes(x = the_per_cap_ppp_mean)) + 
+  geom_histogram(fill = "red", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Mean Total Health Spending per Person (in PPP dollars)",
+    y = "Frequency",
+    title = "Distribution of Health Care Spending"
+  )
+
+p_log_the <- full_data %>%
+  ggplot(aes(x = log(the_per_cap_ppp_mean))) + 
+  geom_histogram(fill = "red", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Log Mean THE per Capita (Log PPP dollars)",
+    y = "Frequency",
+    title = "Health Care Spending"
+  ) +
+  theme(title = element_text(size = 10),
+        axis.title.x = element_text(size = 6),
+        axis.title.y = element_text(size = 8))
+
+p_log_pov <- full_data %>%
+  ggplot(aes(log(full_data$`Poverty headcount ratio at national poverty lines (% of population)`))) + 
+  geom_histogram(fill = "blue", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Log Poverty Headcount Ratio",
+    y = "Frequency",
+    title = "Poverty Headcount"
+  )
+
+p_pov <- full_data %>%
+  ggplot(aes(full_data$`Poverty headcount ratio at national poverty lines (% of population)`)) + 
+  geom_histogram(fill = "maroon1", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Poverty Headcount Ratio",
+    y = "Frequency",
+    title = "Poverty Headcount"
+  ) +
+  theme(axis.title.y = element_text(size = 8))
+
+p_log_gdp <- full_data %>%
+  ggplot(aes(log(full_data$`GDP per capita (current US$)`))) + 
+  geom_histogram(fill = "darkorange", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Log GDP",
+    y = "Frequency",
+    title = "GDP"
+  ) +
+  theme(axis.title.y = element_text(size = 8))
+
+p_gdpg <- full_data %>%
+  ggplot(aes(log(full_data$`GDP per capita growth (annual %)`))) + 
+  geom_histogram(fill = "darkgoldenrod2", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "GDP Growth (Annual %)",
+    y = "Frequency",
+    title = "GDP Growth"
+  ) +
+  theme(axis.title.y = element_text(size = 8))
+
+p_inc <- full_data %>%
+  ggplot(aes(full_data$`Income share held by lowest 20%`)) + 
+  geom_histogram(fill = "purple", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Income Share Held by Lowest 20%",
+    y = "Frequency",
+    title = "Income Share (%)"
+  ) +
+  theme(axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8))
+
+p_edu <- ggplot(data = full_data, aes(full_data$`Educational attainment, at least completed upper secondary, population 25+, total (%) (cumulative)`)) + 
+  geom_histogram(fill = "yellow", na.rm = TRUE, bins = 30) + 
+  labs(
+    x = "Secondary Education Completion (%)",
+    y = "Frequency",
+    title = "Secondary Educational Attainment"
+  ) +
+  theme(title = element_text(size = 6),
+        axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8))
+
+grid.arrange(grobs = list(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu), ncol = 3)
+```
+
+---
+
+## Modelling
+
+---
+
+## Conclusions
+
+---
+
+## Limitations
+
+---
+
 
 ## xaringan
 

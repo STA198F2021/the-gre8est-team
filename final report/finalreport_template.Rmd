@@ -4,6 +4,7 @@ subtitle: "due November 16, 2021 by 11:59 PM "
 author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
 date: "11/16/2021"
 output: pdf_document
+fontsize: 10pt
 ---
 
 ```{r load-packages, message = FALSE, warning = FALSE, echo = FALSE}
@@ -644,7 +645,11 @@ One limitation in our models is that although some of the interaction terms and 
 
 # References
  [1] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
+ 
  [2] Lutz, Wolfgang and Endale Kebede. "Education and Health: Redrawing the Preston Curve." Population and Development Review, vol. 44, no. 2, 2018, pp. 343-61, doi:https://doi.org/10.1111/padr.12141.
+
  [3] Luy, Marc et al. "Life Expectancy: Frequently Used, but Hardly Understood." Gerontology, vol. 66, no. 1, 2019, pp. 95-104, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7026938/.
+ 
  [4] "Under-Five Mortality Rate (Probability of Dying by Age 5 Per 1000 Live Births)." Indicator Metadata Registry List. World Health Organization https://www.who.int/data/gho/indicator-metadata-registry/imr-details/7.
+ 
  [5] [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021. \
