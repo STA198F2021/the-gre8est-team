@@ -236,9 +236,9 @@ ggplot(aes(x=Year, y=log(the_per_cap_ppp_mean), group = `Country Name`)) +
   theme(axis.title.y = element_text(size = 8))
 ```
 
-We found that healthcare spending generally increased over time in most countries, regardless of development status, and was also significantly larger in Western than Eastern countries. This would be confirmed when we mapped health care spending around the global as well as life expectancy to reveal geographic patterns./
-/
-```{r healthspending_and_lifeexpectancymap, warning =FALSE, echo=FALSE, fig.width=10, fig.height= 4}
+We found that healthcare spending generally increased over time in most countries, regardless of development status, and was also significantly larger in Western than Eastern countries. This would be confirmed when we mapped health care spending around the global as well as life expectancy to reveal geographic patterns.\
+\
+```{r healthspending_and_lifeexpectancymap, warning =FALSE, echo=FALSE, fig.width=10, fig.height= 8}
 
 world <- ne_countries(scale = "medium", returnclass = "sf")
 full_data1 = full_data %>%
@@ -282,12 +282,13 @@ map3 <- ggplot(data = healthspending.world) +
         axis.ticks.x=element_blank()) + 
     guides(fill = guide_colorbar(title.position = "left"))
 
-grid.arrange(grobs = list(map1, map2, map3), nrow = 2, top = "Geographic Trends of Health Measures and Health Expenditure")
+grid.arrange(grobs = list(map1, map2, map3), nrow = 3, top = "Geographic Trends of Health Measures and Health Expenditure")
 ```
 We saw the same pattern as in the line charts where Western countries had higher healthcare spending,higher life expectancy, and lower mortality rates. The same trend was generally true for developed compared to non-developed regions. We also began to notice the problem of missingness in our dataset where mortality rates and life expectancies for some countries were absent.
 
-Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes to gain a initial impression of whether past findings are consistent with our data:/
-/
+Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes to gain a initial impression of whether past findings are consistent with our data:
+\
+\
 ```{r healthspending_vs_lifeeexpectancy, warning =FALSE, echo=FALSE, fig.height = 3}
 THE_lifeexp <- full_data1 %>%
 ggplot(aes(x = log(the_per_cap_ppp_mean), y = `Total Life Expectancy`)) + 
@@ -520,7 +521,7 @@ The residual plots for all three models are pretty similar. They all show fairly
 
 **Mortality Rate Under the Age of 5 Simple Linear Model**
 
-$log(\text{Under-5 Mortality} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{GDP}) + \beta_3*\text{GDP Growth} + \beta_4*\text{Income Share} + \beta_5*\text{Poverty} + \beta_6*\text{Education}$ 
+$log(\text{Under-5 Mortality}) = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{GDP}) + \beta_3*\text{GDP Growth} + \beta_4*\text{Income Share} + \beta_5*\text{Poverty} + \beta_6*\text{Education}$ 
 
 ```{r full_mortality_model_table, include = FALSE}
 full_data_mortality <- full_data %>%
@@ -738,6 +739,7 @@ mort_resid3 <- ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .st
 ```
 
 **Residual Comparison**
+
 ```{r mort_resid_plots, fig.height = 3}
 grid.arrange(grobs = list(mort_resid1, mort_resid2, mort_resid3), ncol = 3,
              top = "Mortality Rate Regression Model Residuals",
