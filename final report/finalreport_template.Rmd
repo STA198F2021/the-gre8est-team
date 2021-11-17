@@ -653,13 +653,11 @@ mort_resid2 <- ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.res
   theme(title = element_text(size = 8))
 ```
 
-
-
 **Mortality Rate Under the Age of 5 Quadratic Interaction Model**
 
 $log(\text{Under-5 Mortality}) = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income} + \beta_6*\text{Income}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
 
-For this model, of the significant and interpretable coefficients, as the percent of the population with post-secondary education increased by 1 percent, we would expect the mortaly rate under the age of 5 to decrease by 0.11, on average. In addition to that, as poverty head count ratio increases by one, we expect the mortality rate under the age of 5 to decrease by 0.0796. 
+Similarly to our appraoch for the life expectancy regression models, we are focusing our efforts on interpreting the model with the greatest R$^2$ value. 
 
 ```{r mixed_mortality_model_table, include = FALSE}
 mixed_data_mortality <- full_data %>%
