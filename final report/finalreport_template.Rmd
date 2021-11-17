@@ -417,7 +417,7 @@ glance(lifeexp_fit)$r.squared
 glance(lifeexp_fit)$adj.r.squared
 ```
 
-The R$^2$ for the life expectancy quadratic model is 0.8997453 which means that 0.8997453 of the variation in life expectancy is explained by the model. The adjusted R$^2$ for the life expectancy quadratic model is 0.896811 which means that 0.896811 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R$^2$ of this quadratic model indicates that it is a better model than the simple linear model. 
+The R$^2$ for the life expectancy quadratic model is 0.8997453 and the adjusted R$^2$ for the life expectancy quadratic model is 0.896811. The higher adjusted R$^2$ of this quadratic model indicates that it is a better model than the simple linear model. 
 
 ```{r sig_life_expectancy_model_table_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 lifeexp_fit_aug <- augment(lifeexp_fit$fit)
@@ -495,7 +495,7 @@ glance(lifeexp_mixedfit)$r.squared
 glance(lifeexp_mixedfit)$adj.r.squared
 ```
 
-The R$^2$ for the life expectancy quadratic interaction model is 0.9203884 which means that 0.9203884 of the variation in life expectancy is explained by the model. The adjusted R$^2$ for the life expectancy quadratic interaction model is 0.9155877 which means that 0.9155877 of the variation in life expectancy is explained by the model, adjusting for the number of variables included. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
+The R$^2$ for the life expectancy quadratic interaction model is 0.9203884 and the adjusted R$^2$ for the life expectancy quadratic interaction model is 0.9155877. The higher adjusted R^2 of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
 
 ```{r mixed_life_expectancy_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
@@ -562,7 +562,7 @@ glance(mortality_fullfit)$r.squared
 glance(mortality_fullfit)$adj.r.squared
 ```
 
-The R$^2$ for the mortality rate under the age of 5 simple linear model is 0.8513467 which means that 0.8513467 of the variation in mortality rate is explained by the model. The adjusted R$^2$ for the mortality rate under the age of 5 simple linear model is 0.8467013 which means that 0.8467013 of the variation in mortality rate is explained by the model, adjusting for the number of variables included.
+The R$^2$ for the mortality rate under the age of 5 simple linear model is 0.8513467 and the adjusted R$^2$ for the mortality rate under the age of 5 simple linear model is 0.8467013.
 
 ```{r full_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 mortality_fullfit_aug <- augment(mortality_fullfit$fit)
@@ -638,7 +638,7 @@ glance(mortality_fit)$r.squared
 glance(mortality_fit)$adj.r.squared
 ```
 
-The R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8789936 which means that 0.8789936 of the variation in mortality rate is explained by the model. The adjusted R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8732314 which means that 0.8732314 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R$^2$ of this quadratic model indicates that it is a better model than the simple linear model. 
+The R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8789936 and the adjusted R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8732314. The higher adjusted R$^2$ of this quadratic model indicates that it is a better model than the simple linear model. 
 
 ```{r sig_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 mortality_fit_aug <- augment(mortality_fit$fit)
@@ -725,7 +725,7 @@ glance(mortality_mixedfit)$r.squared
 glance(mortality_mixedfit)$adj.r.squared
 ```
 
-The R$^2$ for the mortality rate under the age of 5 quadratic interaction model is 0.9123402 which means that 0.9123402 of the variation in mortality rate is explained by the model. The adjusted R$^2$ for the mortality rate under the age of 5 quadratic interaction model is 0.9035743 which means that 0.9035743 of the variation in mortality rate is explained by the model, adjusting for the number of variables included. The higher adjusted R$^2$ of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
+The R$^2$ for the mortality rate under the age of 5 quadratic interaction model is 0.9123402 and the adjusted R$^2$ for the mortality rate under the age of 5 quadratic interaction model is 0.9035743. The higher adjusted R$^2$ of this quadratic interaction model indicates that it is a better model than the simple linear model and quadratic model. 
 
 ```{r mixed_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 mortality_mixedfit_aug <- augment(mortality_mixedfit$fit)
