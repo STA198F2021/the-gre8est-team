@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Presentation title</title>
+    <title>Worldwide Health Outcomes</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Team name   Names of team members" />
-    <meta name="date" content="2021-11-16" />
+    <meta name="author" content="the-gr8est-team   Roni O., Judy Z, Matthew W." />
+    <meta name="date" content="2021-11-17" />
     <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -12,11 +12,11 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Presentation title
-## Presentation subtitle (if any)
-### Team name <br> Names of team members
+# Worldwide Health Outcomes
+## Explaining variation in health measures around the world
+### the-gr8est-team <br> Roni O., Judy Z, Matthew W.
 ### Duke University
-### 2021-11-16
+### 2021-11-17
 
 ---
 
@@ -28,12 +28,90 @@ class: center, middle, inverse, title-slide
 
 
 
+
+
+## Background
+
+- GDP, Total Health Expenditure (THE), and Education shown to positively correlate with health outcomes
+- Life Expectancy = projected life span from birth
+- Under 5 Mortality Rate = predicted number of deaths before age 5 (per 1000)
+
+---
 
 class: inverse, middle, center
 
-# Using xaringan
+## Research Question
+
+# This analysis aims to determine the significance of relationships between a set of World Development Indicators and health outcomes, measured by life expectancy and under-5 mortality rate.
+
 
 ---
+
+## Data Overview
+
+- Health Spending = from Global Health Data Exchange
+- Economic/Health-Related Data = World Bank World Development Indicators
+
+---
+
+## Summary Stats - Response Variable
+&lt;img src="presentation_files/figure-html/outcome-histo-1.png" width="77%" style="display: block; margin: auto;" /&gt;
+
+---
+## Summary Stats - Predictors
+
+&lt;img src="presentation_files/figure-html/healtcarespendinghisto-1.png" width="77%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Summary Stats - MAPS!
+
+&lt;img src="presentation_files/figure-html/healthspending_and_lifeexpectancymap-1.png" width="77%" style="display: block; margin: auto;" /&gt;
+---
+
+## Modelling - Life Expectancy
+
+`\(\text{Total Life Expectancy} = \\\beta_0 + \\\beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \\\beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \\\beta_5*\text{Education} + \beta_6*\text{Education}^2 + \\\beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \\\beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*log(\text{GDP}) + \\\beta_{11}*log(\text{GDP})*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}\)` 
+
+---
+
+## Modelling - Life Expectancy (Residuals)
+
+
+&lt;img src="presentation_files/figure-html/mixed_life_expectancy_model_resid-1.png" width="77%" /&gt;
+
+---
+
+## Modelling - Mortality Rates Under 5
+
+`\(\log(\text{Under-5 Mortality}) = \\\beta_0 + \\\beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \\\beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \\\beta_5*\text{Income} + \beta_6*\text{Income}^2 + \\\beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \\\beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \\\beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \\\beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \\\beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \\\beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}\)` 
+
+---
+
+## Modelling - Mortality Rates Under 5 (Residual)
+
+
+&lt;img src="presentation_files/figure-html/mixed_mortality_model_resid-1.png" width="77%" /&gt;
+
+---
+
+## Conclusions
+
+- Education!!!
+- Other findings inconsistent...
+
+---
+
+## Limitations
+
+- Limited data from low-income countries
+- Overfitting
+- Some coefficients difficult to interpret
+- Some clustering in residual plot
+- No statements about causality
+
+---
+
 
 ## xaringan
 
@@ -102,7 +180,7 @@ glance(model)
 
 
 
-&lt;img src="presentation_files/figure-html/plot-penguins-1.png" title="Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins." alt="Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins." width="70%" /&gt;
+&lt;img src="presentation_files/figure-html/plot-penguins-1.png" title="Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins." alt="Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins." width="77%" /&gt;
 
 ---
 
