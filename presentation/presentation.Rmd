@@ -1,7 +1,7 @@
 ---
 title: "Worldwide Health Outcomes"
-subtitle: "Explaining variation in health measures around the world"
-author: "the-gr8est-team <br> Roni O., Judy Z, Matthew W."
+subtitle: "Explaining Variation in Health Measures Around the World"
+author: "The Gre8est Team <br> Roni O., Judy Z, Matthew W."
 institute: "Duke University"
 date: "`r Sys.Date()`"
 output:
@@ -68,15 +68,15 @@ style_xaringan(
 
 --
 
-### - GDP, Total Health Expenditure (THE), and Education shown to positively correlate with health outcomes
+### - GDP, Total Health Expenditure (THE), and Education shown to positively correlate with health outcomes [1,2]
 
 --
 
-### - Life Expectancy = projected life span from birth
+### - Life Expectancy: Projected life span from birth
 
 --
 
-### - Under 5 Mortality Rate = predicted number of deaths before age 5 (per 1000)
+### - Under-5 Mortality Rate: Predicted number of deaths before age 5 (per 1000)
 
 ---
 
@@ -93,11 +93,15 @@ class: inverse, middle, center
 
 --
 
-### - Health Spending = from Global Health Data Exchange
+### - Health Spending from Global Health Data Exchange
 
 --
 
-### - Economic/Health-Related Data = World Bank World Development Indicators
+### - Economic/Health-Related Data from World Bank World Development Indicators
+
+--
+
+### - Data from 204 countries and territories between 1990 and 2020
 
 ---
 
@@ -347,7 +351,8 @@ result3 <- t(result3)
 colnames(result3) <- vals3
 rownames(result3) <- c("Value", "p-value", "CI Lower", "CI Higher")
 result3 %>% kable(escape = FALSE,
-                  digits = 4) %>%
+                  digits = 4,
+                  format = "html") %>%
   kable_classic(full_width = F, html_font = "helvetica") %>%
   kable_styling(latex_options = c("hold_position","scale_down"),
                 font_size = 16)
@@ -486,3 +491,10 @@ ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 --
 
 ### - No statements about causality
+
+---
+# References
+
+### [1] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
+ 
+### [2] Lutz, Wolfgang and Endale Kebede. "Education and Health: Redrawing the Preston Curve." Population and Development Review, vol. 44, no. 2, 2018, pp. 343-61, doi:https://doi.org/10.1111/padr.12141.
