@@ -37,6 +37,8 @@ library(scales)
 #install.packages("grid")
 library(grid)
 library(gridExtra)
+#install.packages("kableExtra")
+library(kableExtra)
 ```
 
 ```{r setup, include=FALSE}
@@ -64,9 +66,17 @@ style_xaringan(
 
 ## Background
 
-- GDP, Total Health Expenditure (THE), and Education shown to positively correlate with health outcomes
-- Life Expectancy = projected life span from birth
-- Under 5 Mortality Rate = predicted number of deaths before age 5 (per 1000)
+--
+
+### - GDP, Total Health Expenditure (THE), and Education shown to positively correlate with health outcomes
+
+--
+
+### - Life Expectancy = projected life span from birth
+
+--
+
+### - Under 5 Mortality Rate = predicted number of deaths before age 5 (per 1000)
 
 ---
 
@@ -79,10 +89,15 @@ class: inverse, middle, center
 
 ---
 
-## Data Overview
+# Data Overview
 
-- Health Spending = from Global Health Data Exchange
-- Economic/Health-Related Data = World Bank World Development Indicators
+--
+
+### - Health Spending = from Global Health Data Exchange
+
+--
+
+### - Economic/Health-Related Data = World Bank World Development Indicators
 
 ---
 
@@ -284,11 +299,8 @@ grid.arrange(grobs = list(map2, map3), ncol = 1, top = "Geographic Trends of Hea
 
 ## Modelling - Life Expectancy
 
-$\text{Total Life Expectancy} = \\\beta_0 + \\\beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \\\beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \\\beta_5*\text{Education} + \beta_6*\text{Education}^2 + \\\beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \\\beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*log(\text{GDP}) + \\\beta_{11}*log(\text{GDP})*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}$ 
+$\text{Total Life Expectancy} = \\\beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \\\beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \beta_5*\text{Education} + \\\beta_6*\text{Education}^2 + \beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \\\beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*log(\text{GDP}) + \\\beta_{11}*log(\text{GDP})*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}$ 
 
----
-
-## Modelling - Life Expectancy (Residuals)
 ```{r mixed_life_expectancy_model_table, include = FALSE}
 mixed_data_life_exp <- full_data %>%
   filter(is.na(`Total Life Expectancy`) == FALSE) %>%
@@ -327,6 +339,24 @@ lifeexp_mixedfit<- linear_reg() %>%
 tidy(lifeexp_mixedfit, conf.int=TRUE)
 ```
 
+``` {r table3, echo = FALSE, fig.align = "center"}
+result3 <- tidy(lifeexp_mixedfit, conf.int=TRUE)
+vals3 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$", "$\\beta_7$", "$\\beta_8$", "$\\beta_9$", "$\\beta_{10}$", "$\\beta_{11}$", "$\\beta_{12}$")
+result3 <- result3[-c(1, 3:4)]
+result3 <- t(result3)
+colnames(result3) <- vals3
+rownames(result3) <- c("Value", "p-value", "CI Lower", "CI Higher")
+result3 %>% kable(escape = FALSE,
+                  digits = 4) %>%
+  kable_classic(full_width = F, html_font = "helvetica") %>%
+  kable_styling(latex_options = c("hold_position","scale_down"),
+                font_size = 16)
+```
+
+---
+
+## Modelling - Life Expectancy (Residuals)
+
 ```{r mixed_life_expectancy_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
 
@@ -343,11 +373,8 @@ ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 
 ## Modelling - Mortality Rates Under 5
 
-$\log(\text{Under-5 Mortality}) = \\\beta_0 + \\\beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \\\beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \\\beta_5*\text{Income} + \beta_6*\text{Income}^2 + \\\beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \\\beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \\\beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \\\beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \\\beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \\\beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
+$\log(\text{Under-5 Mortality}) = \\\beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \\\beta_5*\text{Income} + \beta_6*\text{Income}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \\\beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \\\beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \\\beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \\\beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
 
----
-
-## Modelling - Mortality Rates Under 5 (Residual)
 ```{r mixed_mortality_model_table, include = FALSE}
 mixed_data_mortality <- full_data %>%
   filter(is.na(`Mortality rate, under-5 (per 1,000 live births)`) == FALSE) %>%
@@ -395,6 +422,25 @@ mortality_mixedfit <- linear_reg() %>%
 tidy(mortality_mixedfit, conf.int=TRUE)
 ```
 
+``` {r table6, echo = FALSE, fig.align = "center"}
+result6 <- tidy(mortality_mixedfit, conf.int=TRUE)
+vals6 <- c("$\\beta_0$", "$\\beta_1$", "$\\beta_2$", "$\\beta_3$", "$\\beta_4$", "$\\beta_5$", "$\\beta_6$", "$\\beta_7$", "$\\beta_8$", "$\\beta_9$", "$\\beta_{10}$", "$\\beta_{11}$", "$\\beta_{12}$", "$\\beta_{13}$", "$\\beta_{14}$", "$\\beta_{15}$", "$\\beta_{16}$", "$\\beta_{17}$", "$\\beta_{18}$")
+result6 <- result6[-c(1, 3:4)]
+result6 <- t(result6)
+colnames(result6) <- vals6
+rownames(result6) <- c("Value", "p-value", "CI Lower", "CI Higher")
+knitr::kable(result6,
+             escape = FALSE,
+             digits = 3) %>%
+  kable_styling(latex_options = c("hold_position","scale_down"),
+                font_size = 12) %>%
+  kable_classic(html_font = "helvetica")
+```
+
+---
+
+## Modelling - Mortality Rates Under 5 (Residual)
+
 ```{r mixed_mortality_model_resid, warning = FALSE, echo = FALSE}
 mortality_mixedfit_aug <- augment(mortality_mixedfit$fit)
 
@@ -409,168 +455,34 @@ ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
 
 ---
 
-## Conclusions
-
-- Education!!!
-- Other findings inconsistent...
-
----
-
-## Limitations
-
-- Limited data from low-income countries
-- Overfitting
-- Some coefficients difficult to interpret
-- Some clustering in residual plot
-- No statements about causality
-
----
-
-
-## xaringan
-
-- The presentation is created using the `xaringan` package
-
-- Use `---` to separate slides and `--` for incremental builds
+# Conclusions
 
 --
 
-- Like this
+### - Education!!!
+
+--
+
+### - Other findings inconsistent...
 
 ---
 
-## Layouts
+# Limitations
 
-You can use plain text
+### - Limited data from low-income countries
 
-- or bullet points
+--
 
-.pull-left[
-or text in two columns $^*$
-]
-.pull-right[
-- like
-- this
-]
+### - Overfitting
 
-.footnote[
-[*] And add footnotes
-]
+--
 
----
+### - Some coefficients difficult to interpret
 
-## Code
+--
 
-```{r boring-regression}
-# a boring regression
-model <- lm(dist ~ speed, data = cars)
-tidy(model)
-glance(model)
-```
+### - Some clustering in residual plot
 
----
+--
 
-## Plots
-
-```{r recode-species, echo = FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-penguins_modified <- penguins %>%
-  mutate(species = fct_other(species, keep = "Adelie"))
-```
-
-```{r plot-penguins, echo = FALSE, warning = FALSE, fig.alt = "Body mass vs. flipper lenght of Palmer Penguins for species Adelie and all the others combined together. There is a relatively strong, positive relationship between the two variables. The Adelie penguins are clustered together but they don't exhibit a different trend than the rest of the penguins."}
-# Code hidden with echo = FALSE
-# Uses modified penguins dataset from previous chunk
-# Play around with height and width until you're happy with the look
-ggplot(penguins_modified, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
-  geom_point() + 
-  theme_minimal()
-```
-
----
-
-## Plot and text
-
-.pull-left[
-- Some text
-- goes here
-]
-.pull-right[
-```{r warning=FALSE, out.width="100%", fig.width=4, echo=FALSE}
-# see how I changed out.width and fig.width from defaults
-# to make the figure bigger
-ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot() +
-  theme_minimal()
-```
-]
-
----
-
-class: inverse, middle, center
-
-# A new section...
-
----
-
-## Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r penguins-table, echo = FALSE}
-kable(head(penguins), format = "html")
-```
-
----
-
-## Images
-
-```{r castle, echo = FALSE, out.width = "40%", fig.align = "center", fig.cap = "Image credit: Danielle Navarro, Percolate."}
-include_graphics("img/watercolour_sys02_img32_percolate.jpg")
-```
-
-Or you can also include a full page image. See next slide.
-
----
-
-background-image: url(img/watercolour_sys02_img32_percolate.jpg)
-
----
-
-## Math Expressions
-
-You can write LaTeX math expressions inside a pair of dollar signs, e.g. &#36;\alpha+\beta$ renders $\alpha+\beta$. You can use the display style with double dollar signs:
-
-```
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-```
-
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-
-Limitations:
-
-1. The source code of a LaTeX math expression must be in one line, unless it is inside a pair of double dollar signs, in which case the starting `$$` must appear in the very beginning of a line, followed immediately by a non-space character, and the ending `$$` must be at the end of a line, led by a non-space character;
-
-1. There should not be spaces after the opening `$` or before the closing `$`.
-
-1. Math does not work on the title slide (see [#61](https://github.com/yihui/xaringan/issues/61) for a workaround).
-
----
-
-class: inverse, middle, center
-
-# Wrap up
-
----
-
-## Feeling adventurous?
-
-- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
-
-- You are welcomed to use the default styling of the slides. In fact, that's what I expect the majority of you will do. You will differentiate yourself with the content of your presentation.
-
-- But some of you might want to play around with slide styling. The 
-`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
-
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.
+### - No statements about causality
