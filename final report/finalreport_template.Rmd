@@ -24,7 +24,7 @@ library(grid)
 library(gridExtra)
 #install.packages("kableExtra")
 library(kableExtra)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 ``` 
 
 ```{r load-data, message = FALSE, warning = FALSE, echo=FALSE}
@@ -286,7 +286,8 @@ grid.arrange(grobs = list(map1, map2, map3), nrow = 2, top = "Geographic Trends 
 ```
 We saw the same pattern as in the line charts where Western countries had higher healthcare spending,higher life expectancy, and lower mortality rates. The same trend was generally true for developed compared to non-developed regions. We also began to notice the problem of missingness in our dataset where mortality rates and life expectancies for some countries were absent.
 
-Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes to gain a initial impression of whether past findings are consistent with our data:
+Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes to gain a initial impression of whether past findings are consistent with our data:/
+/
 ```{r healthspending_vs_lifeeexpectancy, warning =FALSE, echo=FALSE, fig.height = 3}
 THE_lifeexp <- full_data1 %>%
 ggplot(aes(x = log(the_per_cap_ppp_mean), y = `Total Life Expectancy`)) + 
@@ -355,13 +356,14 @@ The R$^2$ for the life expectancy simple linear model is 0.8387499 which means t
 ``` {r full_life_expectancy_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 lifeexp_fullfit_aug <- augment(lifeexp_fullfit$fit)
 
-ggplot(lifeexp_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+le_resid1 <- ggplot(lifeexp_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Life Expectancy Simple Linear Model Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")  +
+  labs(title = "Simple Linear Model",
+       x = NULL,
+       y = NULL)  +
   theme(title = element_text(size = 8))
 ```
-This residual scatter plot is concerning because the points in the plot appear to decrease for higher predicted life expectancies and thus are not randomly and evenly distributed around 0. There is also some clustering of the residual points occurring around 82.5 years in predicted total life expectancy. 
 
 **Life Expectancy Quadratic Model**
 
@@ -420,14 +422,15 @@ The R$^2$ for the life expectancy quadratic model is 0.8997453 which means that 
 ```{r sig_life_expectancy_model_table_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 lifeexp_fit_aug <- augment(lifeexp_fit$fit)
 
-ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+le_resid2 <- ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Life Expectancy Quadratic Model Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")  +
+  labs(title = "Quadratic Model",
+       x = NULL,
+       y = NULL)  +
   theme(title = element_text(size = 8))
 ```
 
-This residual scatter plot is an improvement from the linear model as the points are more randomly and evenly distributed around 0, and there is less correlation between predicted value and residual. The residual points also seem to be more tightly centered/closer to 0. However, there still appears to be clustering around 82.5 predicted years as well as around 77.5 predicted years.
 
 **Life Expectancy Quadratic Interaction Model**
 
@@ -497,12 +500,25 @@ The R$^2$ for the life expectancy quadratic interaction model is 0.9203884 which
 ```{r mixed_life_expectancy_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 lifeexp_mixedfit_aug <- augment(lifeexp_mixedfit$fit)
 
-ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+le_resid3 <- ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Life Expectancy Quadratic Interaction Model Residual Plot", x = "Predicted Total Life Expectancy (years)", y = "Residuals")  +
+  labs(title = "Quadratic Interaction Model",
+       x = NULL,
+       y = NULL)  +
   theme(title = element_text(size = 8))
 ```
+
+**Residual Comparison**
+
+```{r resid_plots, fig.height = 3}
+grid.arrange(grobs = list(le_resid1, le_resid2, le_resid3), ncol = 3,
+             top = "Life Expectancy Regression Model Residual Plots",
+             bottom = "Predicted Life Expectancy (years)")
+```
+This residual scatter plot is concerning because the points in the plot appear to decrease for higher predicted life expectancies and thus are not randomly and evenly distributed around 0. There is also some clustering of the residual points occurring around 82.5 years in predicted total life expectancy. 
+
+This residual scatter plot is an improvement from the linear model as the points are more randomly and evenly distributed around 0, and there is less correlation between predicted value and residual. The residual points also seem to be more tightly centered/closer to 0. However, there still appears to be clustering around 82.5 predicted years as well as around 77.5 predicted years.
 
 This residual scatter plot is an improvement from the quadratic model as the points are appear to less clustered and thus are more evenly distributed across the predicted years. However, the residual points seem to be less tightly centered/close to 0.
 
