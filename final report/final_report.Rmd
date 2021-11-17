@@ -4,7 +4,7 @@ subtitle: "due November 16, 2021 by 11:59 PM "
 author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
 date: "11/16/2021"
 output: pdf_document
-fontsize: 10pt
+fontsize: 10.5pt
 ---
 
 ```{r load-packages, message = FALSE, warning = FALSE, echo = FALSE}
@@ -217,10 +217,10 @@ p_edu <- ggplot(data = full_data, aes(full_data$`Educational attainment, at leas
   labs(
     x = "Secondary Education Completion (%)",
     y = "Frequency",
-    title = "Secondary Educational Attainment"
+    title = "Secondary Educational Completion"
   ) +
   theme(title = element_text(size = 6),
-        axis.title.x = element_text(size = 8),
+        axis.title.x = element_text(size = 7),
         axis.title.y = element_text(size = 8))
 
 grid.arrange(grobs = list(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu), ncol = 3, top = "Predictor Variable Distributions")
@@ -312,9 +312,9 @@ grid.arrange(grobs = list(THE_lifeexp, THE_mort), ncol = 2, top = "Correlation B
 ```
 There is a clear positive linear relationship between healthcare spending and life expectancy but a more exponential-decay trend in healthcare spending and mortality rates under-5. Viewing these trends would come in helpful when deciding what regression model to use, linear or polynomial.
 
-# Modelling
+# Modeling
 
-In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. Since we had multiple continuous variables that were potentially correlated with the outcome variables and no categorical variables, we decided to use regression to explore the associations. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R$^2$, and a quadratic model with interaction effects using only the covariates that increased adjusted R$^2$. We decided to utilize these 3 models to characterize linear, quadratic, and quadratic interaction relationships between the covariates and the health outcome variable (life expectancy and mortality rate under the age of 5). Adjusted R$^2$ and residual plots were used for assess each of these models and the quadratic interaction models for both health outcomes were eventually found to be the best fit.
+In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. Since we had multiple continuous variables that were potentially correlated with the outcome variables, we decided to use regression to explore the associations. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R$^2$, and a quadratic model with interaction effects using only the covariates that increased adjusted R$^2$. We decided to utilize these 3 models to characterize linear, quadratic, and quadratic interaction relationships between the covariates and the health outcome variable (life expectancy and mortality rate under the age of 5). Adjusted R$^2$ and residual plots were used for assess each of these models and the quadratic interaction models for both health outcomes were eventually found to be the best fit.
 
 **Life Expectancy Simple Linear Model**
 
@@ -438,7 +438,7 @@ le_resid2 <- ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid))
 
 **Life Expectancy Quadratic Interaction Model**
 
-$\text{Total Life Expectancy} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \beta_5*\text{Education} + \beta_6*\text{Education}^2 + \beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*\text{GDP} + \beta_{11}*\text{GDP}*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}$ 
+$\text{Total Life Expectancy} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \beta_5*\text{Education} + \beta_6*\text{Education}^2 + \beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*log(\text{GDP}) + \beta_{11}*log(\text{GDP})*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}$ 
 
 ```{r mixed_life_expectancy_model_table, include = FALSE}
 mixed_data_life_exp <- full_data %>%
@@ -492,7 +492,15 @@ result3 %>% kable(escape = FALSE,
                 font_size = 8)
 ```
 
-From this model, of the significant and interpretable coefficients, we see that for every percent of the population that has completed at least secondary education, we expect to see life expectancy to be higher by 0.46 on average.
+Given that this model has the highest adjusted R$^2$ value, we have decided to interpret the coefficient estimates and their significance. Based on the results above, log(THE) does not have a significant linear relationship to total life expectancy (p-value = 0.4004 > 0.05) and does not have a significant quadratic relationship to total life expectancy (p-value = 0.0868 > 0.05). log(GDP) does not have a significant linear relationship to total life expectancy (p-value = 0.0997 > 0.05). Poverty does not have a significant linear relationship to total life expectancy (p-value = 0.4171 > 0.05).
+
+Education does have a significant linear relationship (p-value $\approx$ 0.0000 < 0.05) and significant quadratic relationship (p-value $\approx$ 0.0000 < 0.05) to total life expectancy. For every one increase in the percentage of the population 25+ that has at least completed upper secondary education, the total life expectancy of a country is expected to increase by 0.4655 years on average, holding all other covariates constant. Moreover, for every one increase in the percentage of the population 25+ that has at least completed upper secondary education squared, the total life expectancy of a country is expected to decrease by 0.0025 on average, holding all other covariates constant. This indicates that increasing educational attainment in a country is expected to have decreasing marginal returns on increasing total life expectancy on average. 
+
+GDP growth does have a significant linear relationship to total life expectancy (p-value = 0.0163 < 0.05). For every one percentage increase in GDP growth, the total life expectancy of a country is expected to decrease by 0.3134 on average, holding all other covariates constant.
+
+The interaction term between poverty and education does have a significant linear relationship to total life expectancy (p-value $\approx$ 0.0000 < 0.05). Since -0.0050 < 0, the estimated effect of poverty and education on total life expectancy are negatively related, holding all other covariates constant. The interaction term between GDP growth and education does have a significant linear relationship to total life expectancy (p-value = 0.0094 < 0.05). Given that 0.0059 > 0, the estimated effect of GDP growth and education on total life expectancy are positively related, holding all other covariates constant. The interaction term between poverty and GDP does have a significant linear relationship to total life expectancy (p-value = 0.0409 < 0.05). Because -0.0222 < 0, the estimated effect of poverty and GDP on total life expectancy are negatively related, holding all other covariates constant.  
+
+The interaction term between GDP and education does not have a significant linear relationship to total life expectancy (p-value = 0.0732 > 0.05). The interaction term between log(THE) and poverty does have a significant linear relationship to total life expectancy (p-value $\approx$ 0.0000 < 0.05). Since 0.1331 > 0, the estimated effect of log(THE) and poverty on total life expectancy are positively related, holding all other covariates constant. 
 
 ```{r mixed_life_expectancy_model_r2, include = FALSE}
 glance(lifeexp_mixedfit)$r.squared
@@ -515,12 +523,12 @@ le_resid3 <- ggplot(lifeexp_mixedfit_aug, mapping = aes(x = .fitted, y = .std.re
 
 **Residual Comparison**
 
-```{r lifeexp_resid_plots, fig.height = 3}
+```{r resid_plots, fig.height = 3}
 grid.arrange(grobs = list(le_resid1, le_resid2, le_resid3), ncol = 3,
              top = "Life Expectancy Regression Model Residual Plots",
-             bottom = "Predicted Life Expectancy (years)",
-             left = "Residuals")
+             bottom = "Predicted Life Expectancy (years)")
 ```
+
 The residual plots for all three models are pretty similar. They all show fairly random distributions around 0, with some clustering at the higher predicted life expectancies. The simple linear model has the widest spread in residuals, followed by the quadratic regression with no interaction terms. Thus, the quadratic model with interaction terms is likely the best residual plot, which, along with its highest R$^2$, supports its case as the best model.
 
 **Mortality Rate Under the Age of 5 Simple Linear Model**
@@ -576,6 +584,8 @@ mort_resid1 <- ggplot(mortality_fullfit_aug, mapping = aes(x = .fitted, y = .std
        y = NULL)  +
   theme(title = element_text(size = 8))
 ```
+
+This residual scatter plot is satisfactory because the points in the plot appear to be evenly and randomly distributed around 0. 
 
 **Mortality Rate Under the Age of 5 Quadratic Model**
 
@@ -653,13 +663,11 @@ mort_resid2 <- ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.res
   theme(title = element_text(size = 8))
 ```
 
-
+This residual scatter plot is slightly worse than that for the linear model. There appear to be more negative residuals at lower predicted rates and more positive residuals at the middle predicted rates. Overall, the residuals are generally randomly and evenly distributed around 0.
 
 **Mortality Rate Under the Age of 5 Quadratic Interaction Model**
 
 $log(\text{Under-5 Mortality}) = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income} + \beta_6*\text{Income}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
-
-For this model, of the significant and interpretable coefficients, as the percent of the population with post-secondary education increased by 1 percent, we would expect the mortaly rate under the age of 5 to decrease by 0.11, on average. In addition to that, as poverty head count ratio increases by one, we expect the mortality rate under the age of 5 to decrease by 0.0796. 
 
 ```{r mixed_mortality_model_table, include = FALSE}
 mixed_data_mortality <- full_data %>%
@@ -723,6 +731,16 @@ knitr::kable(result6,
   kable_classic(html_font = "helvetica")
 ```
 
+Similar to our approach for the life expectancy regression models, we are focusing our efforts on interpreting the model with the greatest R$^2$ value. Out of the 19 association terms, 13 are significant (p < 0.05, excluding $\beta_0$). Although there is no significant linear relationship between log(THE) and mortality rates ($\beta_1$, p = 0.793), there is a significant quadratic relationship ($\beta_2$, p < 0.05). Holding all other covariates constant, for every 1 increase in log(THE)$^2$, we expect, on average, an 0.120 increase in under-5 mortality rate. This is also the case with log(GDP), where there is no significant linear relationship (p = 0.183), but there is a significant quadratic relationship ($\beta_2$, p < 0.05). Holding all other covariates constant, for every 1 increase in log(GDP)$^2$, we expect, on average, an 0.041 increase in under-5 mortality rate. Income is another variable that shares this affect on mortality rate. The linear term is not significant ($\beta_5$, p = 0.758) while the quadratic term is ($\beta_6$, p < 0.05). Holding all other covariates constant, for every 1 increase in income, we expect, on average, an 0.041 increase in under-5 mortality rate. Income is another variable that shares this affect on mortality rate. For every 1 increase in (income share held by the bottom 20%)$^2$, we expect, on average, mortality rate under-5 to increase by 0.069.
+
+Educational attainment has a significant effect on mortality rate as a linear and a quadratic predictor (p < 0.05). Holding all other covariates constant, for every 1% increase in secondary educational attainment, we expect, on average, an 0.113 decrease in under-5 mortality rate. Meanwhile, holding all other covariates constant, for every 1 increase in (secondary educational attainment)$^2$, we expect, on average a near-zero change in under-5 mortality rate.
+
+Poverty headcount has a significant linear correlation with under-5 mortality rates ($\beta_{11}$, p < 0.05) but not significant quadratic correlation ($\beta_7$, p = 0.052). Therefore, for every increase in poverty headcount by 1%, we expect, on average, a 0.080 decrease in under-5 mortality rate, with all other covariates constant.
+
+There is a significant relationship between GDP growth (%) and under-5 mortality rates ($\beta_{10}$, p < 0.05). However, the value of the association is roughly 0, meaning that, although significant, there is minimal change in mortality rates when GDP growth changes.
+
+The significant (p < 0.05) interaction terms include those between income share and secondary educational attainment ($\beta_{12}$), log(THE) and log(GDP) ($\beta_{13}$), income share and GDP growth ($\beta_{14}$), log(GDP) and secondary educational attainment ($\beta_{16}$), log(GDP) and income share ($\beta_{17}$), and income share and poverty headcount ($\beta_{18}$). $\beta_{12}$, $\beta_{13}$, $\beta_{17}$, and $\beta_{18}$ are all positive, meaning that the estimated effect of the two variables in question on under-5 mortality rates are negatively related, holding all other covariates constant. In contrast, $\beta_{18}$ is positive, indicating that the effects of income share held by the lower 20% and poverty headcount on under-5 mortality rate are positively related with other covariates constant. There is no significant interaction between secondary educational attainment and GDP growth ($\beta_{15}$, p = 0.299).
+
 ```{r mixed_mortality_model_r2, include = FALSE}
 glance(mortality_mixedfit)$r.squared
 glance(mortality_mixedfit)$adj.r.squared
@@ -750,13 +768,16 @@ grid.arrange(grobs = list(mort_resid1, mort_resid2, mort_resid3), ncol = 3,
              bottom = "Predicted Mortality Rate Under-5 (per 1000)",
              left = "Residuals")
 ```
+
 None of the three residual plots are particularly concerning. They are all randomly distributed around 0. For the linear and simple quadratic models, there appear to be more negative residuals at lower predicted rates and more positive residuals at the middle predicted rates. The spread of the residuals decreases as the model "complexity" increases (from linear to quadratic to interaction), which resembles the increase in R$^2$ with model "complexity," supporting the argument for the quadratic model with interaction terms being the best model.
 
 # Conclusions
-Comparing the two final models, we see one major similarity arise, whether we use mortality rates under 5 or life expectancy. As the percent of the population that has post-secondary education increases, health outcomes are expected to improve, on average. Therefore, the most significant and consistent conclusion we can take away is that there appears to be an association between educational levels in a country and their health outcomes. 
+
+Comparing the two final models, we see one major similarity arise, whether we use mortality rates under 5 or life expectancy. Secondary educational attainment has significant positive linear and quadratic effects on life expectancy and significant negative effects on under-5 mortality rates, both of which are indicators of improved health outcomes. Thus, as the percent of the population that has upper secondary education increases, health outcomes are expected to improve, on average. However, the quadratic term informs us that at a certain point, the benefits of increased secondary educational attainment on health outcomes levels off. Nonetheless, the most significant and consistent conclusion we can take away is that there appears to be an association between educational levels in a country and their health outcomes. This finding is consistent with other studies. Our results also seem to refute past studies analyzing GDP and total health expenditure. We did not find significant linear relationships between either log-transformed variable and the two health outcomes. There were significant relationships between log(THE)$^2$ and both life expectancy and under-5 mortality, but the different in their effects on improving health outcomes. There were no other variables with consistent effects across both models. We did determine multiple significant interaction effects between the predictors for both models. However, there were no consistent trends across the two models.
 
 # Limitations
-One limitation in our models is that although some of the interaction terms and normalized variables improved the models, their coefficients proved to be uninterpretable. In addition to that, the residual plot for the Life Expectancy Quadratic Interaction Model which we used for analysis had some clustering which was not ideal. The clustering was not extreme and the R^2 was high enough to justify use of the model. 
+
+One limitation of our analysis is that it only applies to countries that have data for the World Development Indicators and health outcomes (life expectancy and mortality rate under the age of 5) we are exploring. It is more difficult to find and gather accurate data in lower income countries, and thus that may limit the generalization of our results. Even though we used adjusted R$^2$ as a benchmark in model creation, we may still have a problem with overfitting because not all the included covariates in our best models are significant (p-value < 0.05). The coefficients in these models are also difficult to interpret given the complexity of the model (log transformations, quadratics, and interaction terms). The residual plot for the Life Expectancy Quadratic Interaction Model that we used in our final analysis (highest adjusted R$^2$) also had some clustering which was not ideal. Finally, we cannot make any statements about the causality between our selected World Development Indicators and health outcomes.
 
 # References
  [1] Gallet CA, Doucouliagos H. The impact of healthcare spending on health outcomes: A meta-regression analysis. Soc Sci Med. 2017 Apr;179:9-17. doi: 10.1016/j.socscimed.2017.02.024. Epub 2017 Feb 20. PMID: 28237460.
@@ -767,7 +788,7 @@ One limitation in our models is that although some of the interaction terms and 
  
  [4] "Under-Five Mortality Rate (Probability of Dying by Age 5 Per 1000 Live Births)." Indicator Metadata Registry List. World Health Organization https://www.who.int/data/gho/indicator-metadata-registry/imr-details/7.
  
- [5] [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021.
+ [5] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021.
  
  [6] World Bank. World Development Indicators, The World Bank Group, 2021,
 https://databank.worldbank.org/source/world-development-indicators
