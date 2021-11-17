@@ -436,7 +436,6 @@ le_resid2 <- ggplot(lifeexp_fit_aug, mapping = aes(x = .fitted, y = .std.resid))
   theme(title = element_text(size = 8))
 ```
 
-
 **Life Expectancy Quadratic Interaction Model**
 
 $\text{Total Life Expectancy} = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*\text{Poverty} + \beta_5*\text{Education} + \beta_6*\text{Education}^2 + \beta_7*\text{GDP Growth} + \beta_8*\text{Poverty}*\text{Education} + \beta_9*\text{GDP Growth}*\text{Education} + \beta_{10}*\text{Poverty}*\text{GDP} + \beta_{11}*\text{GDP}*\text{Education} + \beta_{12}*log(\text{THE})*\text{Poverty}$ 
@@ -529,11 +528,8 @@ grid.arrange(grobs = list(le_resid1, le_resid2, le_resid3), ncol = 3,
              top = "Life Expectancy Regression Model Residual Plots",
              bottom = "Predicted Life Expectancy (years)")
 ```
-This residual scatter plot is concerning because the points in the plot appear to decrease for higher predicted life expectancies and thus are not randomly and evenly distributed around 0. There is also some clustering of the residual points occurring around 82.5 years in predicted total life expectancy. 
 
-This residual scatter plot is an improvement from the linear model as the points are more randomly and evenly distributed around 0, and there is less correlation between predicted value and residual. The residual points also seem to be more tightly centered/closer to 0. However, there still appears to be clustering around 82.5 predicted years as well as around 77.5 predicted years.
-
-This residual scatter plot is an improvement from the quadratic model as the points are appear to less clustered and thus are more evenly distributed across the predicted years. However, the residual points seem to be less tightly centered/close to 0.
+The residual plots for all three models are pretty similar. They all show fairly random distributions around 0, with some clustering at the higher predicted life expectancies. The simple linear model has the widest spread in residuals, followed by the quadratic regression with no interaction terms. Thus, the quadratic model with interaction terms is likely the best residual plot, which, along with its highest R$^2$, supports its case as the best model.
 
 **Mortality Rate Under the Age of 5 Simple Linear Model**
 
@@ -580,10 +576,12 @@ The R$^2$ for the mortality rate under the age of 5 simple linear model is 0.851
 ```{r full_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 mortality_fullfit_aug <- augment(mortality_fullfit$fit)
 
-ggplot(mortality_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+mort_resid1 <- ggplot(mortality_fullfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Mortality Rate Under the Age of 5 Simple Linear Model Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")  +
+  labs(title = "Simple Linear Model",
+       x = NULL,
+       y = NULL)  +
   theme(title = element_text(size = 8))
 ```
 
@@ -656,18 +654,18 @@ The R$^2$ for the mortality rate under the age of 5 quadratic model is 0.8789936
 ```{r sig_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 mortality_fit_aug <- augment(mortality_fit$fit)
 
-ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+mort_resid2 <- ggplot(mortality_fit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Mortality Rate Under-5 Quadratic Model Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals") +
+  labs(title = "Quadratic Model",
+       x = NULL,
+       y = NULL) +
   theme(title = element_text(size = 8))
 ```
 
 **Mortality Rate Under the Age of 5 Quadratic Interaction Model**
 
 $log(\text{Under-5 Mortality}) = \beta_0 + \beta_1*log(\text{THE}) + \beta_2*log(\text{THE})^2 + \beta_3*log(\text{GDP}) + \beta_4*log(\text{GDP})^2 + \beta_5*\text{Income} + \beta_6*\text{Income}^2 + \beta_7*\text{Poverty}^2 + \beta_8*\text{Education} + \beta_9*\text{Education}^2 + \beta_{10}*\text{GDP Growth} + \beta_{11}*\text{Poverty} + \beta_{12}*\text{Income}*\text{Education} + \beta_{13}*log(\text{THE})*log(\text{GDP}) + \beta_{14}*\text{Income}*\text{GDP Growth} + \beta_{15}*\text{Education}*\text{GDP Growth} + \beta_{16}*log(\text{GDP})*\text{Education} + \beta_{17}*log(\text{GDP})*\text{Income} + \beta_{18}*\text{Income}*\text{Poverty}$ 
-
-Similarly to our appraoch for the life expectancy regression models, we are focusing our efforts on interpreting the model with the greatest R$^2$ value. 
 
 ```{r mixed_mortality_model_table, include = FALSE}
 mixed_data_mortality <- full_data %>%
@@ -731,6 +729,8 @@ knitr::kable(result6,
   kable_classic(html_font = "helvetica")
 ```
 
+Similar to our approach for the life expectancy regression models, we are focusing our efforts on interpreting the model with the greatest R$^2$ value. Out of the 19 association terms, 13 are significant (p < 0.05, excluding $\beta_0$). Although there is no significant linear relationship between log(THE) and mortality rates ($\beta_1$, p = 0.793), there is a significant quadratic relationship ($\beta_2$, p < 0.05). Holding all other covariates constant, for every 1 increase in log(THE)$^2$, we expect, on average, an 0.120 increase in under-5 mortality rate. This is also the case with log(GDP), where there is no significant linear relationship (p = 0.183), but there is a significant quadratic relationship ($\beta_2$, p < 0.05). Holding all other covariates constant, for every 1 increase in log(GDP)$^2$, we expect, on average, an 0.041 increase in under-5 mortality rate. Income is another variable that shares this affect on mortality rate. The linear term is not significant ($\beta_5$, p = 0.758) while the quadratic term is ($\beta_6$, p < 0.05). Holding all other covariates constant, for every 1 increase in income, we expect, on average, an 0.041 increase in under-5 mortality rate. Income is another variable that shares this affect on mortality rate. For every 1 increase
+
 ```{r mixed_mortality_model_r2, include = FALSE}
 glance(mortality_mixedfit)$r.squared
 glance(mortality_mixedfit)$adj.r.squared
@@ -741,10 +741,12 @@ The R$^2$ for the mortality rate under the age of 5 quadratic interaction model 
 ```{r mixed_mortality_model_resid, warning = FALSE, echo = FALSE, fig.height = 3}
 mortality_mixedfit_aug <- augment(mortality_mixedfit$fit)
 
-ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
+mort_resid3 <- ggplot(mortality_mixedfit_aug, mapping = aes(x = .fitted, y = .std.resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "blue", lty = "dashed") +
-  labs(title = "Mortality Rate Under the Age of 5 Quadratic Interaction Model Residual Plot", x = "Predicted Mortality Rate, under-5 (per 1,000 live births)", y = "Residuals")  +
+  labs(title = "Quadratic Interaction Model",
+       x = NULL,
+       y = NULL)  +
   theme(title = element_text(size = 8))
 ```
 
@@ -756,6 +758,7 @@ grid.arrange(grobs = list(mort_resid1, mort_resid2, mort_resid3), ncol = 3,
              bottom = "Predicted Mortality Rate Under-5 (per 1000)",
              left = "Residuals")
 ```
+
 None of the three residual plots are particularly concerning. They are all randomly distributed around 0. For the linear and simple quadratic models, there appear to be more negative residuals at lower predicted rates and more positive residuals at the middle predicted rates. The spread of the residuals decreases as the model "complexity" increases (from linear to quadratic to interaction), which resembles the increase in R$^2$ with model "complexity," supporting the argument for the quadratic model with interaction terms being the best model.
 
 # Conclusions
