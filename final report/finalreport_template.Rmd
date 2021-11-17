@@ -88,6 +88,10 @@ full_data <- full_join(full_data, h_spend2, by = c("Country Name", "Country Code
 full_data$`Total Life Expectancy` = as.numeric(full_data$`Total Life Expectancy`)
 ```
 
+```{r download_data}
+write.csv(full_data, "Full Dataset.csv")
+```
+
 # Background
 Numerous studies have analyzed the correlation between health spending and health outcomes, consistently finding a positive relationship between the two [1]. Other studies have investigated how GDP and educational attainment are associated with health outcomes and found that both are positive predictors of health [2]. Our study looks to build on past findings and conduct a multivariate analysis to better inform global leaders on focus areas for improving global health.
 
