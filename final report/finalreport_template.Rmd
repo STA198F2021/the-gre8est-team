@@ -102,7 +102,7 @@ We are combining health spending data from the Global Health Data Exchange [5] a
 # Data Wrangling and Transformations
 The two data sets were modified such that the observations could be merged by country name and year. No observations were removed at this stage for missing data. Additionally, many of the measures included in the Global Health Data Exchange data set were not used but were not removed in case future analysis involved those measures. \
 
-Since the analysis plan involved regression models, we looked at the distribution of our outcome variables, life expectancy and under-5 mortality rate. The life expectancy data looked approximately normal. However, the mortality rate data was log-transformed to produce a more normal distribution:
+Since the analysis plan involved regression models, we looked at the distribution of our outcome variables, life expectancy and under-5 mortality rate. The life expectancy data looked approximately normal. However, the mortality rate data was log-transformed to produce a more normal distribution: \
 ```{r outcome-histo, warning = FALSE, echo=FALSE, fig.height = 2}
 p_lifeexp <- full_data %>%
   ggplot(aes(full_data$'Total Life Expectancy')) + 
@@ -223,7 +223,7 @@ grid.arrange(grobs = list(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu), nc
 
 Then, we looked at healthcare spending over time in a few selected countries to see any trends in the data:
 
-```{r healthspendinglinegraph, warning =FALSE, echo=FALSE, fig.height = 3, fig.width = 4}
+```{r healthspendinglinegraph, warning =FALSE, echo=FALSE, fig.height = 3}
 full_data %>%
   filter(`Country Name` == "Australia" | `Country Name` == "United States of America" |  `Country Name` == "Canada" |  `Country Name` == "China" | `Country Name` == "Indonesia" | `Country Name` == "Russia" | `Country Name` == "Sudan") %>%
 ggplot(aes(x=Year, y=log(the_per_cap_ppp_mean), group = `Country Name`)) +
@@ -234,9 +234,8 @@ ggplot(aes(x=Year, y=log(the_per_cap_ppp_mean), group = `Country Name`)) +
        y = "Log of Mean total health spending per person (in PPP dollars)")
 ```
 
-We found that healthcare spending generally increased over time in developed countries and was also significantly larger in Western than Eastern countries. This would be confirmed when we mapped health care spending. While mapping, we also mapped what would later be one of our response variables: life expectancy. We wanted to visualize life expectancy across countries to see any geographic patterns:
-
-```{r healthspending_and_lifeexpectancymap, warning =FALSE, echo=FALSE, fig.width=10, fig.height = 4}
+We found that healthcare spending generally increased over time in most countries, regardless of development status, and was also significantly larger in Western than Eastern countries. This would be confirmed when we mapped health care spending around the global as well as life expectancy to reveal geographic patterns.
+```{r healthspending_and_lifeexpectancymap, warning =FALSE, echo=FALSE, fig.width=10}
 
 world <- ne_countries(scale = "medium", returnclass = "sf")
 full_data1 = full_data %>%
@@ -248,7 +247,7 @@ map1 <- ggplot(data = healthspending.world) +
     scale_fill_viridis_c(option = "plasma") +
     labs(title = "Health Spending",
        fill = "Log(THE) (log 2020 USD)") +
-    theme(legend.title = element_text(angle = 90, size = 6),
+    theme(legend.title = element_text(angle = 90, size = 8),
         legend.key.width = unit(2, 'mm'),
         axis.title.x=element_blank(),
         axis.text.x=element_blank(),
@@ -261,7 +260,7 @@ map2 <- ggplot(data = healthspending.world) +
     scale_fill_viridis_c(option = "plasma") +
     labs(title = "Mortality Rates",
        fill = "Log(Mortality Rates Under 5, per 1000)")  +
-    theme(legend.title = element_text(angle = 90, size = 5),
+    theme(legend.title = element_text(angle = 90, size = 7),
         legend.key.width = unit(2, 'mm'),
         axis.title.x=element_blank(),
         axis.text.x=element_blank(),
@@ -273,36 +272,36 @@ map3 <- ggplot(data = healthspending.world) +
     scale_fill_viridis_c(option = "plasma") +
     labs(title = "Life Expectancies",
        fill = "Life Expectancy (Years)")  +
-    theme(legend.title = element_text(angle = 90, size = 6),
+    theme(legend.title = element_text(angle = 90, size = 8),
         legend.key.width = unit(2, 'mm'),
         axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) + 
     guides(fill = guide_colorbar(title.position = "left"))
 
-grid.arrange(grobs = list(map1, map2, map3), ncol = 3)
+grid.arrange(grobs = list(map1, map2, map3), ncol = 3, top = "Geographic Trends of Health Measures and THE")
 ```
-We saw the same pattern as in the line charts where Western countries had higher healthcare spending,higher life expectancy, and lower mortality rates. The same trend was generally true for developed compared to non-developed regions. We also began to notice the problem of missingness in our dataset where mortality rates and life expectancies for some countries (most notably the U.S.) were absent.
+We saw the same pattern as in the line charts where Western countries had higher healthcare spending,higher life expectancy, and lower mortality rates. The same trend was generally true for developed compared to non-developed regions. We also began to notice the problem of missingness in our dataset where mortality rates and life expectancies for some countries were absent.
 
-Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes (being mortality rates under 5 and life expectancy). We used scatterplots to do so:
+Finally, we wanted to visualize the relationship between healthcare spending and our health outcomes to gain a initial impression of whether past findings are consistent with our data:
 ```{r healthspending_vs_lifeeexpectancy, warning =FALSE, echo=FALSE, fig.height = 3}
-full_data1 %>%
+THE_lifeexp <- full_data1 %>%
 ggplot(aes(x = log(the_per_cap_ppp_mean), y = `Total Life Expectancy`)) + 
   geom_point(alpha = 0.6) +
 labs( x= "Log of Mean THE per Capita (in PPP dollars)",
       y = "Total Life Expectancy",
       title = "Mean THE per Capita versus Life Expectancy")
 
-full_data1 %>%
+THE_mort <- full_data1 %>%
 ggplot(aes(x = log(the_per_cap_ppp_mean), y = `Mortality rate, under-5 (per 1,000 live births)`)) + 
   geom_point(alpha = 0.6) +
 labs( x= "Log of Mean THE per Capita (in PPP dollars)", y = "Mortality Rates Under 5")
 ```
-There is a clear positive linear relationship between healthcare spending and life expectancy but a more exponential-decay trend in healthcare spending and mortality rates under 5. Viewing these trends would come in helpful when modelling. Within the descriptive statistics portion of our project, we also explored healthcare spending by GDP, distributions of mortality rates, life expectancies, and fertility rates, male vs. female life expectancy distributions, and line graphs of health outcomes over time. However, the most significant graphs and visualizations are included above as these helped the most in understanding our data set and fitting the proper models. In addition to this, some outcomes such as fertility rates were excluded after data visualization due the missingness in that variable being to great to deal with. 
+There is a clear positive linear relationship between healthcare spending and life expectancy but a more exponential-decay trend in healthcare spending and mortality rates under-5. Viewing these trends would come in helpful when deciding what regression model to use, linear or polynomial
 
 # Modeling
 
-In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R$^2$, and a quadratic model with interaction effects using only the covariates that increased adjusted R$^2$. We decided to utilize these 3 models to characterize linear, quadratic, and quadratic interaction relationships between the covariates and the health outcome variable (life expectancy and mortality rate under the age of 5). Adjusted R$^2$ and residual plots were used for assess each of these models and the quadratic interaction models for both health outcomes were eventually found to be the best fit.
+In our models, we decided to explore two commonly used health outcome measures: life expectancy and mortality rate under the age of 5. Since we had multiple continuous variables that were potentially correlated with the outcome variables, we decided to use regression to explore the associations. For each health outcome, we constructed 3 different models: a simple linear model with all the covariates we had identified, a quadratic model with only the covariates that increased adjusted R$^2$, and a quadratic model with interaction effects using only the covariates that increased adjusted R$^2$. We decided to utilize these 3 models to characterize linear, quadratic, and quadratic interaction relationships between the covariates and the health outcome variable (life expectancy and mortality rate under the age of 5). Adjusted R$^2$ and residual plots were used for assess each of these models and the quadratic interaction models for both health outcomes were eventually found to be the best fit.
 
 **Life Expectancy Simple Linear Model**
 
