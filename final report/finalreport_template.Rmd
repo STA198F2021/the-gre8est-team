@@ -4,7 +4,7 @@ subtitle: "due November 16, 2021 by 11:59 PM "
 author: "The Gre8est Team: Roni Ochakovski, Matthew Wang, Judy Zhong"
 date: "11/16/2021"
 output: pdf_document
-fontsize: 10pt
+fontsize: 10.5pt
 ---
 
 ```{r load-packages, message = FALSE, warning = FALSE, echo = FALSE}
@@ -217,10 +217,10 @@ p_edu <- ggplot(data = full_data, aes(full_data$`Educational attainment, at leas
   labs(
     x = "Secondary Education Completion (%)",
     y = "Frequency",
-    title = "Secondary Educational Attainment"
+    title = "Secondary Educational Completion"
   ) +
   theme(title = element_text(size = 6),
-        axis.title.x = element_text(size = 8),
+        axis.title.x = element_text(size = 7),
         axis.title.y = element_text(size = 8))
 
 grid.arrange(grobs = list(p_log_the, p_log_gdp, p_gdpg, p_pov, p_inc, p_edu), ncol = 3, top = "Predictor Variable Distributions")
@@ -788,7 +788,7 @@ One limitation of our analysis is that it only applies to countries that have da
  
  [4] "Under-Five Mortality Rate (Probability of Dying by Age 5 Per 1000 Live Births)." Indicator Metadata Registry List. World Health Organization https://www.who.int/data/gho/indicator-metadata-registry/imr-details/7.
  
- [5] [1] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021.
+ [5] Global Burden of Disease Collaborative Network. Global Health Spending 1995-2018. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2021.
  
  [6] World Bank. World Development Indicators, The World Bank Group, 2021,
 https://databank.worldbank.org/source/world-development-indicators
